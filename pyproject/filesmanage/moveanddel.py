@@ -1,7 +1,7 @@
 import os
 import openpyxl
 import shutil
-from filesop import opfiles
+from filesmanage import opfiles
 
 #解压文件拷回主目录
 def is_rar_file(filename):
