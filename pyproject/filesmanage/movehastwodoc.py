@@ -1,4 +1,4 @@
-#一处有同名的doc和docx在统统目录下
+#文件夹下有同名的doc和docx移到外面的目录下（父文件夹名+_samedoc_x）
 import os
 import shutil
 from filesfunction import opfiles
