@@ -1,4 +1,4 @@
-#一个文件夹下有一个以上文件
+#将第一个选择的目录里与第二个选择的目录里的文件夹名称相同时，将第一个目录里的该文件夹移动名为“第一个选择的目录+_same_as_sample的文件夹里
 import os
 import shutil
 from filesfunction import opfiles
@@ -25,11 +25,8 @@ def samedoc_delete(folder_path, parent_floder, selected_folderexample):
         if root == folder_path :
             for dire in dirs:
                 if dire in foldnames:
-                    index = foldnames.index(dire)
-                    path = pathnames[index]
+                    path = os.path.normpath(os.path.join(root, dire))
                     pathnames_sel.append(path)
-                    
-                    
 
     for path_sel in pathnames_sel:
         try:
@@ -40,7 +37,5 @@ def samedoc_delete(folder_path, parent_floder, selected_folderexample):
 
 # 指定文件夹路径
 selected_folder, parent_folder = opfiles.OpFiles.select_folder()
-samedoc_delete(selected_folder, parent_folder)
-
 selected_folderexample, parent_folderexample = opfiles.OpFiles.select_folder()
-samedoc_delete(selected_folderexample, parent_folderexample)
+samedoc_delete(selected_folder, parent_folder,selected_folderexample)
