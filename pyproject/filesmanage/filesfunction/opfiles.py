@@ -26,6 +26,27 @@ class OpFiles:
         else:
             return None, None
         
+    @staticmethod
+    def select_excel_file():
+        """
+        选择Excel文件并返回其路径和上级目录路径。
+
+        Returns:
+        tuple: (selected_file, parent_folder)
+        """
+
+        root = tk.Tk()
+        root.withdraw()
+
+        # 设置文件类型过滤器，只允许选择Excel文件
+        filetypes = [('Excel文件', '*.xlsx'), ('Excel文件', '*.xls')]
+        selected_file = filedialog.askopenfilename(filetypes=filetypes)
+
+        if selected_file:
+            return selected_file
+        else:
+            return None
+        
 
     @staticmethod
     def remove_suffix(filename, num):
