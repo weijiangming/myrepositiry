@@ -1,7 +1,7 @@
 import win32com.client
 import time
 import os
-import filesop
+from filesmanage import opfiles
 
 def get_page_count(doc_path):
     # 启动Word应用程序
@@ -23,7 +23,7 @@ def get_page_count(doc_path):
 # doc_path = r'C:\Users\jimee\Desktop\ttyy\甘肃省屋面施工方案.docx'
 # print(f'The document has {get_page_count(doc_path)} pages.')
 
-selected_folder, parent_folder = filesop.OpFiles.select_folder()
+selected_folder, parent_folder = opfiles.select_folder()
 
 for root, dirs, files in os.walk(selected_folder):
         if root == selected_folder:#只处理指定文件夹下这一级
