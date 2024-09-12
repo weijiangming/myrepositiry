@@ -1,8 +1,7 @@
+#处理有与pdf同名的doc和docx,注意二级三级目录，目前只支持第三级 不支持第二级
 import os
 import opfiles
 import shutil
-
-#处理有与pdf同名的doc和docx,注意二级三级目录，目前只支持第三级 不支持第二级
 def samenameop(folder_path, parent_folder):
     folder_samedoc = os.path.join(parent_folder,f"{folder_path}_samedoc")
     folder_samedocx = os.path.join(parent_folder,f"{folder_path}_samedocx")

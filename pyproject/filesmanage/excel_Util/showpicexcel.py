@@ -1,5 +1,13 @@
 import openpyxl
 import os
+import sys
+from pathlib import Path
+
+# 获取当前文件的父目录
+parent_dir = str(Path(__file__).resolve().parent.parent)
+# 将父目录添加到sys.path
+sys.path.append(parent_dir)
+
 from filesfunction import opfiles
 import re
 
