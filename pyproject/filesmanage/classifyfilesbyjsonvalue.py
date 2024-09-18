@@ -1,3 +1,4 @@
+#json里版本等1的单拎一个文件夹
 import os
 import json
 import shutil
