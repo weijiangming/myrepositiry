@@ -1,0 +1,265 @@
+def simplify_versions(versions):
+    # 将输入的字符串按照逗号分隔，生成版本列表，并去除多余的空格
+    version_list = [v.strip() for v in versions.split('、')]
+    
+    # 初始化简化版本列表
+    simplified = []
+    
+    # 初始化一个列表，用于存储连续的版本号
+    current_range = []
+    
+    # 遍历版本列表
+    for i in range(len(version_list)):
+        if not current_range:  # 如果current_range为空，添加当前版本
+            current_range.append(version_list[i])
+        else:
+            # 检查当前版本与上一个版本是否为连续版本
+            current_version_parts = version_list[i].split('.')
+            prev_version_parts = current_range[-1].split('.')
+            
+            # 比较最后一部分是否相差1，且前面部分是否相同
+            if (len(current_version_parts) == len(prev_version_parts) and
+                current_version_parts[:-1] == prev_version_parts[:-1] and
+                int(current_version_parts[-1]) == int(prev_version_parts[-1]) + 1):
+                current_range.append(version_list[i])  # 如果连续，加入current_range
+            else:
+                # 如果不连续，结束当前range，并存储到simplified
+                if len(current_range) > 2:  # 如果连续超过两个，才简写为范围
+                    simplified.append(f"{current_range[0]}~{current_range[-1]}")
+                else:
+                    # 如果是两个连续版本或单独版本，用“、”隔开
+                    simplified.extend(current_range)
+                current_range = [version_list[i]]  # 开始一个新的range
+    
+    # 最后一次的range处理
+    if current_range:
+        if len(current_range) > 2:  # 如果最后一段有超过两个版本连续
+            simplified.append(f"{current_range[0]}~{current_range[-1]}")
+        else:
+            simplified.extend(current_range)  # 两个连续版本或单独版本
+    
+    return '、'.join(simplified)
+
+
+# 示例测试
+versions = "1.0.1、1.0.2、1.0.3、1.0.4、1.0.8"
+result = simplify_versions(versions)
+print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+
+versions = "b.0.1、b.0.2、b.0.3、b.0.4、b.0.8"
+result = simplify_versions(versions)
+print(result)  # 输出: b.0.1~b.0.4、b.0.8
+
+versions = "C.0.1、C.0.2、C.0.4"
+result = simplify_versions(versions)
+print(result)  # 输出: C.0.1、C.0.2、C.0.4
+
+
+# def simplify_versions(versions):
+#     # 将输入的字符串按照逗号分隔，生成版本列表，并去除多余的空格
+#     version_list = [v.strip() for v in versions.split('、')]
+    
+#     # 初始化简化版本列表
+#     simplified = []
+    
+#     # 初始化一个列表，用于存储连续的版本号
+#     current_range = []
+    
+#     # 遍历版本列表
+#     for i in range(len(version_list)):
+#         if not current_range:  # 如果current_range为空，添加当前版本
+#             current_range.append(version_list[i])
+#         else:
+#             # 检查当前版本与上一个版本是否为连续版本
+#             current_version_parts = version_list[i].split('.')
+#             prev_version_parts = current_range[-1].split('.')
+            
+#             # 比较最后一部分是否相差1，且前面部分是否相同
+#             if (len(current_version_parts) == len(prev_version_parts) and
+#                 current_version_parts[:-1] == prev_version_parts[:-1] and
+#                 int(current_version_parts[-1]) == int(prev_version_parts[-1]) + 1):
+#                 current_range.append(version_list[i])  # 如果连续，加入current_range
+#             else:
+#                 # 如果不连续，结束当前range，并存储到simplified
+#                 if len(current_range) > 1:
+#                     simplified.append(f"{current_range[0]}~{current_range[-1]}")
+#                 else:
+#                     simplified.append(current_range[0])
+#                 current_range = [version_list[i]]  # 开始一个新的range
+    
+#     # 最后一次的range处理
+#     if current_range:
+#         if len(current_range) > 1:
+#             simplified.append(f"{current_range[0]}~{current_range[-1]}")
+#         else:
+#             simplified.append(current_range[0])
+    
+#     return '、'.join(simplified)
+
+
+# # 示例测试
+# versions = "1.0.1、1.0.2、1.0.3、1.0.4、1.0.8"
+# result = simplify_versions(versions)
+# print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+
+# versions = "b.0.1、b.0.2、b.0.3、b.0.4、b.0.8"
+# result = simplify_versions(versions)
+# print(result)  # 输出: b.0.1~b.0.4、b.0.8
+
+
+# import re
+
+# def simplify_versions(versions):
+#     version_list = versions.split('、')  # 按 '、' 分割成列表
+
+#     if len(version_list) < 3:
+#         return versions
+
+#     simplified = []
+#     start = None
+
+#     for i in range(len(version_list)):
+#         if start is None:  # 初始化起始版本
+#             start = version_list[i]
+        
+#         # 如果下一个版本不连续，或者已经是最后一个版本
+#         if i == len(version_list) - 1 or not is_consecutive(version_list[i], version_list[i+1]):
+#             if start == version_list[i]:  # 没有连续的版本
+#                 simplified.append(start)
+#             else:  # 有连续的版本
+#                 simplified.append(f"{start}~{version_list[i]}")
+#             start = None  # 重置起始版本
+
+#     return '、'.join(simplified)
+
+# def is_consecutive(v1, v2):
+#     # 判断版本号 v1 和 v2 是否连续
+#     v1_parts = extract_version_numbers(v1)
+#     v2_parts = extract_version_numbers(v2)
+
+#     if not v1_parts or not v2_parts:  # 如果无法提取到数字版本，返回 False
+#         return False
+
+#     # 比较版本号的所有部分，如果前三部分相同并且第四部分是连续的
+#     if v1_parts[:2] == v2_parts[:2] and v2_parts[2] == v1_parts[2] + 1:
+#         return True
+#     return False
+
+# def extract_version_numbers(version):
+#     # 提取版本号中的数字部分，忽略非数字部分
+#     match = re.findall(r'(\d+)', version)
+#     if match:
+#         return list(map(int, match))
+#     return None
+
+# # 示例
+# versions = "b.0.1、b.0.2、b.0.3、b.0.4、b.0.8"
+# result = simplify_versions(versions)
+# print(result)  # 输出: "b.0.1~b.0.4、b.0.8"
+
+
+# import re
+
+# def simplify_versions(versions):
+#     version_list = versions.split('、')  # 按 '、' 分割成列表
+
+#     if len(version_list) < 3:
+#         return versions
+
+#     simplified = []
+#     start = None
+
+#     for i in range(len(version_list)):
+#         if start is None:  # 初始化起始版本
+#             start = version_list[i]
+        
+#         # 如果下一个版本不连续，或者已经是最后一个版本
+#         if i == len(version_list) - 1 or not is_consecutive(version_list[i], version_list[i+1]):
+#             if start == version_list[i]:  # 没有连续的版本
+#                 simplified.append(start)
+#             else:  # 有连续的版本
+#                 simplified.append(f"{start}~{version_list[i]}")
+#             start = None  # 重置起始版本
+
+#     return '、'.join(simplified)
+
+# def is_consecutive(v1, v2):
+#     # 判断版本号 v1 和 v2 是否连续
+#     v1_parts = extract_version_numbers(v1)
+#     v2_parts = extract_version_numbers(v2)
+
+#     if not v1_parts or not v2_parts:  # 如果无法提取到数字版本，返回 False
+#         return False
+
+#     # 仅处理版本号第三部分
+#     if v1_parts[:2] == v2_parts[:2] and v2_parts[2] == v1_parts[2] + 1:
+#         return True
+#     return False
+
+# def extract_version_numbers(version):
+#     # 提取版本号中的数字部分，忽略字母部分
+#     try:
+#         return list(map(int, re.findall(r'\d+', version)))
+#     except ValueError:
+#         return None
+
+# # 示例
+# versions = "b.0.1、b.0.2、b.0.3、b.0.4、b.0.8"
+# result = simplify_versions(versions)
+# print(result)  # 输出: "b.0.1~b.0.4、b.0.8"
+
+
+
+# def simplify_versions(versions):
+#     version_list = versions.split('、')  # 按 '、' 分割成列表
+
+#     if len(version_list) < 3:
+#         return versions
+
+#     simplified = []
+#     start = None
+
+#     for i in range(len(version_list)):
+#         if start is None:  # 初始化起始版本
+#             start = version_list[i]
+        
+#         # 如果下一个版本不连续，或者已经是最后一个版本
+#         if i == len(version_list) - 1 or not is_consecutive(version_list[i], version_list[i+1]):
+#             if start == version_list[i]:  # 没有连续的版本
+#                 simplified.append(start)
+#             else:  # 有连续的版本
+#                 simplified.append(f"{start}~{version_list[i]}")
+#             start = None  # 重置起始版本
+
+#     return '、'.join(simplified)
+
+# def is_consecutive(v1, v2):
+#     # 判断版本号 v1 和 v2 是否连续
+#     if v1 == "A.0.1":
+#         print(v1)
+#     v1_parts = extract_version_numbers(v1)
+#     v2_parts = extract_version_numbers(v2)
+
+#     if not v1_parts or not v2_parts:  # 如果无法提取到数字版本，返回 False
+#         return False
+
+#     # 仅处理版本号第三部分
+#     if v1_parts[:2] == v2_parts[:2] and v2_parts[2] == v1_parts[2] + 1:
+#         return True
+#     return False
+
+# def extract_version_numbers(version):
+#     # 提取版本号中的数字部分，忽略非数字部分
+#     try:
+#         return list(map(int, filter(lambda x: x.isdigit(), version.split('.'))))
+#     except ValueError:
+#         return None
+
+# # 示例
+# # versions = "1.0.1、1.0.2、1.0.3、1.0.4、1.0.8"
+# # result = simplify_versions(versions)
+# # print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+
+# versions = "b.0.1、b.0.2、b.0.3、b.0.4、b.0.8"
+# result = simplify_versions(versions)
+# print(result) 
