@@ -87,8 +87,7 @@ bmod = True
 for jsonname in os.listdir(source_folder):
     bmod = False
     icount = icount + 1
-    #定义字典 一组重复项：第一个的条文编号+其他第一个之外的其他条文编号。字典一条对应一组重复项
-    articleceodefirst = {}
+   
 
     #定义数组
     jsonnames = []#。json文件的文件名
@@ -99,7 +98,9 @@ for jsonname in os.listdir(source_folder):
     articlecodes = []#"条文编号"
 
     #重复的
-    #reparticlecode = "" #有重复的第一条文编号
+     #定义字典 一个重复组：重复组第一项的序号+重复组第一项以外ide其他项的条文编号的数组（Index2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
+    repeat_dict = {}
+
     reparticlecodes = [] #有重复的除第一条文编号之外的
     repIndex = -1
 
@@ -125,24 +126,31 @@ for jsonname in os.listdir(source_folder):
 
                     newsubstring = slicetext[len(articlecode):]
                     newsubstringf = slicetext_format[len(articlecode):]
-                    if len(slicetexts) > 0:
-                        if newsubstring in slicetexts or newsubstringf in slicetext_format_list:
-                            #说明第二次出现，重复了
-                            indexT = slicetexts.index(newsubstring)
-                            #获取第一次出现时的序号
-                            if repIndex == -1:
-                                repIndex = indexT
-                            #
-                            if indexT == repIndex:
-                                reparticlecodes.append(articlecode)
-                            
-                        articlecodes.append(articlecode)
-                        slicetexts.append(newsubstring)
-                        slicetext_format_list.append(newsubstringf)
-                    else:
-                        articlecodes.append(articlecode)
-                        slicetexts.append(newsubstring)
-                        slicetext_format_list.append(newsubstringf) 
+
+                    if newsubstring in slicetexts or newsubstringf in slicetext_format_list:
+                        #说明第二次出现，重复了
+                        indexT = slicetexts.index(newsubstring)
+                        if indexT in repeat_dict:#
+                            #有记录 重复项已在字典里，这时加入
+                            repeat_dict[indexT].append(articlecode)
+                            pass
+                        else:
+                            #说明重复项字典里还没记录
+                            repeat_dict[indexT] = []
+                            repeat_dict[indexT].append(articlecode)
+                            pass
+
+                        #获取第一次出现时的序号
+                        if repIndex == -1:
+                            repIndex = indexT
+                        #
+                        if indexT == repIndex:
+                            reparticlecodes.append(articlecode)
+                        
+                    articlecodes.append(articlecode)
+                    slicetexts.append(newsubstring)
+                    slicetext_format_list.append(newsubstringf)
+                    
                 else:
                     print(f'{jsonname} 字段不全缺；条文编号：{str(articlecode)}')#
             #endfor
@@ -150,15 +158,31 @@ for jsonname in os.listdir(source_folder):
             #开始处理一个文件
             icount3 = icount3 + 1
             # ①记录所有重复项的条文编号字段，留下第一个，其余的重复项分片删除
+            
+            sync_index = -1#确保第一个的序号是零
             for entry in data:
-                # 如果条文编号不匹配，则将该条目添加到新列表
-                if not entry["条文编号"] in reparticlecodes:
-                    if entry["条文编号"] == articlecodes[repIndex]:
+                #确保和上一次for entry in data:规则相同，保证序号相同。
+                if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
+                    sync_index = sync_index + 1
+                #
+                twbhT = entry["条文编号"]
+                # 遍历字典
+                found = False
+                for key, value_list in repeat_dict.items():
+                    if twbhT in value_list:
+                        found = True
+                        break 
+
+                if found == False:#需要保留的都在new_data里
+
+                    #if entry["条文编号"] == articlecodes[repIndex]:#只处理repIndex对应的分片，其他不用动，因为整个entry会加入new_data：new_data.append(entry)
+                    if sync_index in repeat_dict:
                         icount4 = icount4 + 1
                         #②对于去重后的分片处理：删除“切片不带格式”和“切片带格式”行首的条文编号，然后将所有重复分片各自的条文编号拿出来填被留下分片的条文编号字段中。并用“、”隔开
-                        articlecoderep = articlecodes[repIndex]
+                        articlecoderep = articlecodes[sync_index]
                         newarticlecodes = articlecoderep
-                        for codeT in reparticlecodes:
+                        twbhlist = repeat_dict[sync_index]
+                        for codeT in twbhlist:
                             newarticlecodes = newarticlecodes + "、" + codeT
                         articlecode_T = entry["条文编号"]
                         entry["条文编号"]  = newarticlecodes
@@ -181,7 +205,7 @@ for jsonname in os.listdir(source_folder):
 
                         newsubstring = slicetext.lstrip()
                         newsubstringf = slicetext_format.lstrip()
-                        #切片剪掉"条文编号"相同的部分
+                        #
                         indexfindT = -1
                         indexfindT = newsubstring.find(str(articlecode_T))
                         if indexfindT == 0:
