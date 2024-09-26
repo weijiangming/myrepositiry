@@ -174,19 +174,52 @@ for jsonname in os.listdir(source_folder):
                         slicetext = entry["切片不带格式"]
                         slicetext_format = entry["切片带格式"]
                         articlecode = entry["条文编号"]
-                        newsubstring = slicetext[len(articlecode_T):]
-                        newsubstring2 = newsubstring.lstrip()
-                        newsubstring3 = newsubstring2[:10]
 
+                        newsubstring = slicetext[len(articlecode_T):]
                         newsubstringf = slicetext_format[len(articlecode_T):]
 
+                        newsubstring = slicetext.lstrip()
+                        newsubstringf = slicetext_format.lstrip()
+                        #
+                        indexfindT = -1
+                        indexfindT = newsubstring.find(str(articlecode_T))
+                        if indexfindT == 0:
+                            newsubstring = newsubstring[len(articlecode_T):]
+                        else:
+                            pass
+
+                        indexfindT = -1
+                        indexfindT = newsubstringf.find(str(articlecode_T))
+                        if indexfindT == 0:
+                            newsubstringf = newsubstringf[len(articlecode_T):]
+                        else:
+                            pass
+
+
+                        newsubstring2 = newsubstring.lstrip()
+                        newsubstring3 = newsubstring2[:10]
+                        newsubstring4 = slicetext[:20]
+                        newsubstringf4 = slicetext_format[:20]
+                        
+                        #判断是否匹配“x.x.x”或“x.x”样式
+                        bMatch = True
                         pattern = r'[A-Za-z0-9]+\.[0-9]+\.[A-Za-z0-9]+'
                         matches1 = re.findall(pattern, newsubstring3)
                         slicetextres = ""
                         slicetext_formatres = ""
                         if matches1:
-                            slicetextres = matches1[0]
+                            match_res = matches1[0]
+                            indexfind = -1
+                            indexfind = newsubstring3.find(match_res)
+                            if indexfind == 0:
+                                slicetextres = newsubstring
+                                slicetext_formatres = newsubstringf
+                            else:
+                                bMatch = False
                         else:#没有“x.x.x”或“x.x”样式的编号
+                            bMatch = False
+
+                        if not bMatch:
                             #条文编号放在行首,格式要求 像“1.0.1~1.0.4”、“1.0.1~1.0.4、1.0.8”
                             # versions = "1.0.1、1.0.2、1.0.3、1.0.4、1.0.8"
                             # result = simplify_versions(versions)
@@ -204,26 +237,42 @@ for jsonname in os.listdir(source_folder):
                                 print(jsonname)
                                 icount6 = icount6 + 1
                             
-                            #记录excel
-
-                            row += 1
-                            sheet.cell(row=row, column=1, value=jsonname)
-                            sheet.cell(row=row, column=2, value=newarticlecodes)
-                            sheet.cell(row=row, column=3, value=result2)
-                    
                             #保证后面有空格
-                            if newsubstring[0] == ' ':
+                            
+                            if newsubstring and newsubstring[0] == ' ':
                                 slicetextres = result2 + newsubstring
                             else:
                                 slicetextres = result2 + ' ' + newsubstring
                                 
-
-                            if newsubstringf[0] == ' ':
+                            #test
+                            if  len(newsubstring) == 0:
+                                pass
+                            
+                            if newsubstringf and newsubstringf[0] == ' ':
                                 slicetext_formatres = result2 + newsubstringf
                             else:
                                 slicetext_formatres = result2 + ' '+ newsubstringf
 
-                        #entry["条文编号"]  = slicetextres
+                             #记录excel
+                            record1 = slicetextres[:50]
+                            record2 = slicetext_formatres[:50]
+                            row += 1
+                            sheet.cell(row=row, column=1, value=jsonname)
+                            sheet.cell(row=row, column=2, value=newarticlecodes)
+                            sheet.cell(row=row, column=3, value=result2)
+                            sheet.cell(row=row, column=4, value=newsubstring4)
+                            sheet.cell(row=row, column=5, value=record1)
+                            sheet.cell(row=row, column=6, value=newsubstringf4)
+                            sheet.cell(row=row, column=7, value=record2)
+
+                        else:
+                            #有匹配到有“x.x.x”或“x.x”样式的编号
+                            row += 1
+                            sheet.cell(row=row, column=9, value=jsonname)
+                            sheet.cell(row=row, column=10, value=newsubstring4)
+                            sheet.cell(row=row, column=11, value=newsubstringf4)
+                            sheet.cell(row=row, column=12, value="有匹配到，不需修改")
+
                         entry["切片不带格式"] = slicetextres
                         entry["切片带格式"] = slicetext_formatres
                     new_data.append(entry)
@@ -238,7 +287,7 @@ for jsonname in os.listdir(source_folder):
 pass
 
 
-excel_file_name = source_folder.split("/")[-1] + "_提取文件名.xlsx"
+excel_file_name = source_folder.split("/")[-1] + "_条文说明略写前后对比记录.xlsx"
 excelfolder_path = os.path.normpath(os.path.join(parent_folder, excel_file_name))
 workbook.save(excelfolder_path)
 
