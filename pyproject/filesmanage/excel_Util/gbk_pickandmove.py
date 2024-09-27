@@ -13,8 +13,6 @@ parent_dir = str(Path(__file__).resolve().parent.parent)# 获取当前文件的�
 sys.path.append(parent_dir)# 将父目录添加到sys.path
 from filesfunction import opfiles
 
-
-
 # 定义文件夹路径
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
 newfolder = source_folder.split("/")[-1] + "_切片内容重复的json文件"
@@ -57,14 +55,32 @@ for jsonname in os.listdir(source_folder):
                     articlecode = entry["条文编号"]
 
 #条文说明JSON文件中 存在“切片不带格式”和“切片带格式”中除了行首的条文编号不同，其余部分的文字内容一样的这种情况的文件挑选出来
-                    newsubstring = slicetext[len(articlecode):]
-                    newsubstringf = slicetext_format[len(articlecode):]
+                    newsubstring = slicetext
+                    newsubstringf = slicetext_format
+
+                     #切片剪掉"条文编号"相同的部分
+                    indexfindT = -1
+                    indexfindT = newsubstring.find(str(articlecode))
+                    if indexfindT == 0:
+                        newsubstring = newsubstring[len(articlecode):]
+                    else:
+                        pass
+
+                    indexfindT = -1
+                    indexfindT = newsubstringf.find(str(articlecode))
+                    if indexfindT == 0:
+                        newsubstringf = newsubstringf[len(articlecode):]
+                    else:
+                        pass
+
                     if len(slicetexts) > 0:
                         if newsubstring in slicetexts or newsubstringf in slicetext_format_list:
                             pass
                             jsonnames.append(jsonname)
                             articlecodes.append(articlecode)
                             break
+                    if "操作、维护保养、技术指标作了规定。" == newsubstring:
+                        pass
                     slicetexts.append(newsubstring)
                     slicetext_format_list.append(newsubstringf)
                     
