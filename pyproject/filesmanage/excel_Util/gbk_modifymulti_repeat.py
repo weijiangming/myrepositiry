@@ -1,4 +1,4 @@
-#工标库json修改重复切片
+#工标库json修改重复切片；执行该文件之前先去条纹编号和切片都相同的情况
 import re
 import os
 import sys
@@ -64,7 +64,14 @@ def simplify_versions(versions):
     return '、'.join(simplified)
 
 
-
+def get_string_before_last_dot(input_string):
+    # 找到最后一个"."的位置
+    last_dot_index = input_string.rfind('.')
+    # 如果找到了"."，返回"."之前的部分；如果没有找到，返回原始字符串
+    if last_dot_index != -1:
+        return input_string[:last_dot_index]
+    else:
+        return input_string
 
 
 # 定义文件夹路径
@@ -100,9 +107,8 @@ for jsonname in os.listdir(source_folder):
     #重复的
      #定义字典 一个重复组：重复组第一项的序号+重复组第一项以外ide其他项的条文编号的数组（Index2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
     repeat_dict = {}
-
+    frontdot_dict = {}#重复组第一项的序号+条文编号最后的"."之前的部分
     reparticlecodes = [] #有重复的除第一条文编号之外的
-    repIndex = -1
 
     if jsonname.endswith('.json') or jsonname.endswith('.Json'):
         file_path = os.path.join(source_folder, jsonname)
@@ -113,40 +119,56 @@ for jsonname in os.listdir(source_folder):
         new_data = []
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
-            icount2 = icount2 + 1
-            if icount2 % 10 == 0:
-                print(icount2)
+            icount = icount + 1
+            if icount % 10 == 0:
+                print(icount)
         try:
             for entry in data:  
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
+                    icount2 = icount2 + 1
                     filename = entry["文档名称"]
                     slicetext = entry["切片不带格式"]
                     slicetext_format = entry["切片带格式"]
                     articlecode = entry["条文编号"]
 
-                    newsubstring = slicetext[len(articlecode):]
-                    newsubstringf = slicetext_format[len(articlecode):]
+                    newsubstring = slicetext
+                    newsubstringf = slicetext_format
+                     #切片剪掉"条文编号"相同的部分
+                    indexfindT = -1
+                    indexfindT = newsubstring.find(str(articlecode))
+                    if indexfindT == 0:
+                        newsubstring = newsubstring[len(articlecode):]
+                    else:
+                        pass
+
+                    indexfindT = -1
+                    indexfindT = newsubstringf.find(str(articlecode))
+                    if indexfindT == 0:
+                        newsubstringf = newsubstringf[len(articlecode):]
+                    else:
+                        pass
 
                     if newsubstring in slicetexts or newsubstringf in slicetext_format_list:
                         #说明第二次出现，重复了
                         indexT = slicetexts.index(newsubstring)
                         if indexT in repeat_dict:#
-                            #有记录 重复项已在字典里，这时加入
-                            repeat_dict[indexT].append(articlecode)
-                            pass
+                            #最后的"."之前的编号一样才是一组如5.1.2和5.3.6 ，就算切片内容相同，也要分两组。
+                            frontdot = get_string_before_last_dot(articlecode)
+                            #frontdot = get_string_before_last_dot(articlecode)
+
+                            if get_string_before_last_dot(articlecode) == get_string_before_last_dot(articlecodes[indexT]):
+                                #有记录 重复项已在字典里，这时加入
+                                repeat_dict[indexT].append(articlecode)
+                            else:
+                                #说明重复项字典里还没记录
+                                repeat_dict[icount2] = []
+                                repeat_dict[icount2].append(articlecode)
                         else:
                             #说明重复项字典里还没记录
                             repeat_dict[indexT] = []
                             repeat_dict[indexT].append(articlecode)
                             pass
 
-                        #获取第一次出现时的序号
-                        if repIndex == -1:
-                            repIndex = indexT
-                        #
-                        if indexT == repIndex:
-                            reparticlecodes.append(articlecode)
-                        
                     articlecodes.append(articlecode)
                     slicetexts.append(newsubstring)
                     slicetext_format_list.append(newsubstringf)
@@ -174,8 +196,7 @@ for jsonname in os.listdir(source_folder):
                         break 
 
                 if found == False:#需要保留的都在new_data里
-
-                    #if entry["条文编号"] == articlecodes[repIndex]:#只处理repIndex对应的分片，其他不用动，因为整个entry会加入new_data：new_data.append(entry)
+                    #只处理sync_index in repeat_dict对应的分片，其他不用动，因为整个entry会加入new_data：new_data.append(entry)
                     if sync_index in repeat_dict:
                         icount4 = icount4 + 1
                         #②对于去重后的分片处理：删除“切片不带格式”和“切片带格式”行首的条文编号，然后将所有重复分片各自的条文编号拿出来填被留下分片的条文编号字段中。并用“、”隔开
@@ -188,14 +209,11 @@ for jsonname in os.listdir(source_folder):
                         entry["条文编号"]  = newarticlecodes
 
                         #修改切片
-
                         # ③如果被留下分片“切片不带格式”和“切片带格式”的行首没有“x.x.x”或“x.x”样式的编号，那么就将重新填的条文编号放在行首
                         # ，如果这串条文编号是连续的（例如“1.0.1、1.0.2、1.0.3、1.0.4”）那么久简写成“1.0.1~1.0.4”样式；如果有不连续的号
                         # ，就单独拿出来放在最后，用“、”隔开（例如“1.0.1、1.0.2、1.0.3、1.0.4、1.0.8”简写成“1.0.1~1.0.4、1.0.8”
                         # ；如果被留下分片“切片不带格式”和“切片带格式”的行首有“x.x.x”或“x.x”样式的编号，那么就不用重新填编号
 
-                        # slicetexts[repIndex]
-                        # slicetext_format_list[repIndex]
                         slicetext = entry["切片不带格式"]
                         slicetext_format = entry["切片带格式"]
                         articlecode = entry["条文编号"]

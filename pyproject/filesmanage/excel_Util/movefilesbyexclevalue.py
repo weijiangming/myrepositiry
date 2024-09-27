@@ -1,4 +1,5 @@
 #根据excel里记录文档名称，从文件夹中取出文件到新文件夹中
+#filetitle = "_按需命名"
 import os
 import shutil
 import tkinter as tk
@@ -17,10 +18,12 @@ from filesfunction import opfiles
 root = tk.Tk()
 root.withdraw()
 
+filetitle = "_取出"
+
 # 打开文件选择对话框
 file_path = filedialog.askopenfilename(title='请选择Excel文件', filetypes=[('Excel文件', '*.xlsx')])
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
-newfolder = source_folder.split("/")[-1] + "_未入库"
+newfolder = source_folder.split("/")[-1] + filetitle
 newfolder_path = os.path.normpath(os.path.join(parent_folder, newfolder))
 
 try:
