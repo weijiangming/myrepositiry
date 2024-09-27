@@ -1,4 +1,4 @@
-#根据excel里记录的未入库文档名称，从文件夹中取出文件到存放未入库文件的文件夹中
+#根据excel里记录文档名称，从文件夹中取出文件到新文件夹中
 import os
 import shutil
 import tkinter as tk

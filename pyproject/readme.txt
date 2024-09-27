@@ -3,7 +3,7 @@
 1.1 提取json的文件名+json文档里"文档名称"各一列 getjsonname.py 
 1.2 工标库检查json有某种情况拎出来另一个文件夹 gbk_pickandmove.py 
 1.3 工标库json修改重复切片 gbk_modify_repeat.py
-
+1.4 根据excel里记录文档名称，从文件夹中取出文件到新文件夹中 movefilesbyexclevalue.py
 
 
 需求说明
