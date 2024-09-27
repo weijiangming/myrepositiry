@@ -6,6 +6,7 @@ from pathlib import Path
 import json
 import openpyxl
 import random
+import inspect
 
 parent_dir = str(Path(__file__).resolve().parent.parent)# 获取当前文件的父目录
 sys.path.append(parent_dir)# 将父目录添加到sys.path
@@ -73,7 +74,6 @@ def get_string_before_last_dot(input_string):
     else:
         return input_string
 
-
 # 定义文件夹路径
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
 
@@ -81,9 +81,10 @@ source_folder, parent_folder = opfiles.OpFiles.select_folder()
 workbook = openpyxl.Workbook()
 sheet = workbook.active
 
+linkkey = '_'
 row = 0
 icount = 0
-icount2 = 0#测试用
+
 icount3 = 0
 icount4 = 0
 icount5 = 0
@@ -92,10 +93,9 @@ icount6 = 0
 bmod = True
 
 for jsonname in os.listdir(source_folder):
+
     bmod = False
     icount = icount + 1
-   
-
     #定义数组
     jsonnames = []#。json文件的文件名
     filenames = []#"文档名称"对应的值
@@ -104,11 +104,16 @@ for jsonname in os.listdir(source_folder):
     slicetext_format_list = []#"切片带格式"
     articlecodes = []#"条文编号"
 
-    #重复的
-     #定义字典 一个重复组：重复组第一项的序号+重复组第一项以外ide其他项的条文编号的数组（Index2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
-    repeat_dict = {}
-    frontdot_dict = {}#重复组第一项的序号+条文编号最后的"."之前的部分
-    reparticlecodes = [] #有重复的除第一条文编号之外的
+    #定义重复的
+    #定义字典 一个重复组：重复分片的第一项的序号+对应的所有重复条文编号最后的"."之前的部分
+    index2front_dict = {}
+    #重复组条文编号最后的"."之前的部分+重复组第一项以外的其他项的条文编号的数组（frontdot2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
+    front2codes_dict = {}
+    
+    indexfront2codes_dict = {}
+    indexreplist = []
+    frontreplist = []
+    
 
     if jsonname.endswith('.json') or jsonname.endswith('.Json'):
         file_path = os.path.join(source_folder, jsonname)
@@ -116,6 +121,7 @@ for jsonname in os.listdir(source_folder):
         # 打开并读取JSON文件
 
         # 新建一个列表，用于存储需要保留的条目
+        sync_index = -1
         new_data = []
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
@@ -125,7 +131,7 @@ for jsonname in os.listdir(source_folder):
         try:
             for entry in data:  
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
-                    icount2 = icount2 + 1
+                    sync_index = sync_index + 1
                     filename = entry["文档名称"]
                     slicetext = entry["切片不带格式"]
                     slicetext_format = entry["切片带格式"]
@@ -151,23 +157,60 @@ for jsonname in os.listdir(source_folder):
                     if newsubstring in slicetexts or newsubstringf in slicetext_format_list:
                         #说明第二次出现，重复了
                         indexT = slicetexts.index(newsubstring)
-                        if indexT in repeat_dict:#
-                            #最后的"."之前的编号一样才是一组如5.1.2和5.3.6 ，就算切片内容相同，也要分两组。
-                            frontdot = get_string_before_last_dot(articlecode)
-                            #frontdot = get_string_before_last_dot(articlecode)
-
-                            if get_string_before_last_dot(articlecode) == get_string_before_last_dot(articlecodes[indexT]):
-                                #有记录 重复项已在字典里，这时加入
-                                repeat_dict[indexT].append(articlecode)
-                            else:
-                                #说明重复项字典里还没记录
-                                repeat_dict[icount2] = []
-                                repeat_dict[icount2].append(articlecode)
-                        else:
-                            #说明重复项字典里还没记录
-                            repeat_dict[indexT] = []
-                            repeat_dict[indexT].append(articlecode)
-                            pass
+                        frontdot = get_string_before_last_dot(articlecode)
+                        # indexfront = str(indexT) + linkkey + frontdot
+                        # if indexfront in indexfront2codes_dict:#
+                        #     indexfront2codes_dict[indexfront].append(articlecode)
+                        # else:
+                        #说明重复项字典里还没记录
+                        if indexT in index2front_dict:#同切片的首序号已经存在
+                            found = False
+                            frontindex = indexT
+                            for key, valuefront in index2front_dict.items():
+                                if frontdot == valuefront:
+                                    found = True
+                                    frontindex = key
+                                    break 
+                            if found:#前部序号已经在字典
+                                if frontindex > indexT:
+                                    indexfront = str(frontindex) + linkkey + frontdot
+                                else:
+                                    indexfront = str(indexT) + linkkey + frontdot
+                                #indexfront2codes_dict[indexfront] = []
+                                indexfront2codes_dict[indexfront].append(articlecode)
+                                indexreplist.append(indexT)
+                                frontreplist.append(frontdot)
+                                # if index2front_dict[indexT]:
+                                #     index2front_dict[frontindex] = frontdot
+                                # else:
+                                #     print(f'{jsonname} 行号：{inspect.stack()[1][2]}该文件单独查是什么问题')
+                            else:#同首序号已经存在，而前部序号不存在，此时需要新建字典项；且新建字典项第一个条纹编号就不能加到记录重复的数组里了
+                                indexfront = str(sync_index) + linkkey + frontdot
+                                indexfront2codes_dict[indexfront] = []
+                                #indexfront2codes_dict[indexfront].append(articlecode)
+                                indexreplist.append(sync_index)
+                                frontreplist.append(frontdot)
+                                index2front_dict[sync_index] = frontdot
+                        else:#同切片的首序号不在字典
+                            found = False
+                            for key, valuefront in index2front_dict.items():
+                                if frontdot == valuefront:
+                                    found = True
+                                    break 
+                            if found:#前部序号已经在字典
+                                indexfront = str(indexT) + linkkey + frontdot
+                                indexfront2codes_dict[indexfront] = []
+                                indexfront2codes_dict[indexfront].append(articlecode)
+                                indexreplist.append(indexT)
+                                frontreplist.append(frontdot)
+                                index2front_dict[indexT] = frontdot
+                            else:#而前部序号不存在
+                                indexfront = str(indexT) + linkkey + frontdot
+                                indexfront2codes_dict[indexfront] = []
+                                indexfront2codes_dict[indexfront].append(articlecode)
+                                indexreplist.append(indexT)
+                                frontreplist.append(frontdot)
+                                index2front_dict[indexT] = frontdot
 
                     articlecodes.append(articlecode)
                     slicetexts.append(newsubstring)
@@ -187,22 +230,23 @@ for jsonname in os.listdir(source_folder):
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
                     sync_index = sync_index + 1
                 #
-                twbhT = entry["条文编号"]
-                # 遍历字典
                 found = False
-                for key, value_list in repeat_dict.items():
+                twbhT = entry["条文编号"]
+                frontdot = get_string_before_last_dot(twbhT)
+                for key, value_list in indexfront2codes_dict.items():
                     if twbhT in value_list:
                         found = True
                         break 
 
                 if found == False:#需要保留的都在new_data里
-                    #只处理sync_index in repeat_dict对应的分片，其他不用动，因为整个entry会加入new_data：new_data.append(entry)
-                    if sync_index in repeat_dict:
+                    #只处理sync_index in inidex2front_dict对应的分片，其他不用动，因为整个entry会加入new_data：new_data.append(entry)
+                    indexfront = str(sync_index) + linkkey + frontdot
+                    if indexfront in indexfront2codes_dict:
                         icount4 = icount4 + 1
                         #②对于去重后的分片处理：删除“切片不带格式”和“切片带格式”行首的条文编号，然后将所有重复分片各自的条文编号拿出来填被留下分片的条文编号字段中。并用“、”隔开
                         articlecoderep = articlecodes[sync_index]
                         newarticlecodes = articlecoderep
-                        twbhlist = repeat_dict[sync_index]
+                        twbhlist = indexfront2codes_dict[indexfront]
                         for codeT in twbhlist:
                             newarticlecodes = newarticlecodes + "、" + codeT
                         articlecode_T = entry["条文编号"]
@@ -216,10 +260,7 @@ for jsonname in os.listdir(source_folder):
 
                         slicetext = entry["切片不带格式"]
                         slicetext_format = entry["切片带格式"]
-                        articlecode = entry["条文编号"]
-
-                        newsubstring = slicetext[len(articlecode_T):]
-                        newsubstringf = slicetext_format[len(articlecode_T):]
+                        #articlecode = entry["条文编号"]
 
                         newsubstring = slicetext.lstrip()
                         newsubstringf = slicetext_format.lstrip()
@@ -237,7 +278,6 @@ for jsonname in os.listdir(source_folder):
                             newsubstringf = newsubstringf[len(articlecode_T):]
                         else:
                             pass
-
 
                         newsubstring2 = newsubstring.lstrip()
                         newsubstring3 = newsubstring2[:10]
