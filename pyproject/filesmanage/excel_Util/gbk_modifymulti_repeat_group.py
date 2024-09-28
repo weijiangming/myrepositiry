@@ -136,6 +136,11 @@ for jsonname in os.listdir(source_folder):
                     slicetext_format = entry["切片带格式"]
                     articlecode = entry["条文编号"]
 
+                    #test
+                    twbhT = entry["条文编号"]
+                    if twbhT == "4.3.5":
+                        pass
+
                     newsubstring = slicetext
                     newsubstringf = slicetext_format
                      #切片剪掉"条文编号"相同的部分
@@ -235,6 +240,12 @@ for jsonname in os.listdir(source_folder):
                 #确保和上一次for entry in data:规则相同，保证序号相同。
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
                     sync_index = sync_index + 1
+                
+                #test
+                twbhT = entry["条文编号"]
+                if twbhT == "4.3.5":
+                    pass
+                
                 #
                 found = False
                 twbhT = entry["条文编号"]
