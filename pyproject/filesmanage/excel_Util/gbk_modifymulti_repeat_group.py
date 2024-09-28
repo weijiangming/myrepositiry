@@ -95,7 +95,6 @@ bmod = True
 for jsonname in os.listdir(source_folder):
 
     bmod = False
-    icount = icount + 1
     #定义数组
     jsonnames = []#。json文件的文件名
     filenames = []#"文档名称"对应的值
@@ -177,7 +176,14 @@ for jsonname in os.listdir(source_folder):
                                 else:
                                     indexfront = str(indexT) + linkkey + frontdot
                                 #indexfront2codes_dict[indexfront] = []
-                                indexfront2codes_dict[indexfront].append(articlecode)
+
+                                try:
+                                    indexfront2codes_dict[indexfront].append(articlecode)
+                                except Exception as e:
+                                    print(f"An error occurred: {e}")
+                                    print(len(indexfront2codes_dict))
+                                    print(jsonname)
+
                                 indexreplist.append(indexT)
                                 frontreplist.append(frontdot)
                                 # if index2front_dict[indexT]:
@@ -300,7 +306,20 @@ for jsonname in os.listdir(source_folder):
                             else:
                                 bMatch = False
                         else:#没有“x.x.x”或“x.x”样式的编号
-                            bMatch = False
+                            if bMatch:
+                                pattern2 = r'[A-Za-z0-9]+\.[A-Za-z0-9]+'
+                                matches2 = re.findall(pattern2, newsubstring3)
+                                if matches2:
+                                    match_res = matches2[0]
+                                    indexfind = -1
+                                    indexfind = newsubstring3.find(match_res)
+                                    if indexfind == 0:
+                                        slicetextres = newsubstring
+                                        slicetext_formatres = newsubstringf
+                                    else:
+                                        bMatch = False
+                                else:
+                                    bMatch = False
 
                         if not bMatch:
                             #条文编号放在行首,格式要求 像“1.0.1~1.0.4”、“1.0.1~1.0.4、1.0.8”
