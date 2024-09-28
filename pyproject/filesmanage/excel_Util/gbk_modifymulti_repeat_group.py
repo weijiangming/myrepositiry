@@ -22,6 +22,7 @@ from filesfunction import opfiles
 
 # ④编号和正文之间还是要添加一个空格
 
+
 def simplify_versions(versions):
     # 将输入的字符串按照逗号分隔，生成版本列表，并去除多余的空格
     version_list = [v.strip() for v in versions.split('、')]
@@ -64,7 +65,6 @@ def simplify_versions(versions):
     
     return '、'.join(simplified)
 
-
 def get_string_before_last_dot(input_string):
     # 找到最后一个"."的位置
     last_dot_index = input_string.rfind('.')
@@ -74,6 +74,55 @@ def get_string_before_last_dot(input_string):
     else:
         return input_string
 
+
+ #index是否在indexfront2codes_dict
+def isIndexInDictKey2(index, dict, linksymbol):
+    for key in dict:
+        try:
+            indexT = key.split(linksymbol)[0]
+            if index == indexT:
+                return True, dict[key]
+        except IndexError:
+            continue
+
+    return False, None
+    #使用方法：found, value = 
+
+#frontdotcode是否在indexfront2codes_dict
+def isfrontcodeInDictValue2(frontcode, dict, linksymbol):
+    for key in dict:
+        try:
+            frontcodeT = key.split(linksymbol)[1]
+            if frontcode == frontcodeT:
+                return True, dict[key]
+        except IndexError:
+            continue
+    return False, None
+
+#index是否在indexfront2codes_dict
+def isIndexInDictKey(index, dict, linksymbol):
+    for key in dict:
+        try:
+            indexT = key.split(linksymbol)[0]
+            if index == indexT:
+                return True, key.split(linksymbol)[1]
+        except IndexError:
+            continue
+
+    return False, None
+    #使用方法：found, value = 
+
+#frontdotcode是否在indexfront2codes_dict
+def isfrontcodeInDictValue(frontcode, dict, linksymbol):
+    for key in dict:
+        try:
+            frontcodeT = key.split(linksymbol)[1]
+            if frontcode == frontcodeT:
+                return True, key.split(linksymbol)[0]
+        except IndexError:
+            continue
+    return False, None
+
 # 定义文件夹路径
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
 
@@ -81,7 +130,7 @@ source_folder, parent_folder = opfiles.OpFiles.select_folder()
 workbook = openpyxl.Workbook()
 sheet = workbook.active
 
-linkkey = '_'
+linkkey = '_' 
 row = 0
 icount = 0
 
@@ -113,7 +162,6 @@ for jsonname in os.listdir(source_folder):
     indexreplist = []
     frontreplist = []
     
-
     if jsonname.endswith('.json') or jsonname.endswith('.Json'):
         file_path = os.path.join(source_folder, jsonname)
         #jsonnames.append(jsonname)
@@ -138,7 +186,7 @@ for jsonname in os.listdir(source_folder):
 
                     #test
                     twbhT = entry["条文编号"]
-                    if twbhT == "4.3.5":
+                    if twbhT == "4.2.6":#"4.5.5":
                         pass
 
                     newsubstring = slicetext
@@ -162,10 +210,7 @@ for jsonname in os.listdir(source_folder):
                         #说明第二次出现，重复了
                         indexT = slicetexts.index(newsubstring)
                         frontdot = get_string_before_last_dot(articlecode)
-                        # indexfront = str(indexT) + linkkey + frontdot
-                        # if indexfront in indexfront2codes_dict:#
-                        #     indexfront2codes_dict[indexfront].append(articlecode)
-                        # else:
+                       
                         #说明重复项字典里还没记录
                         if indexT in index2front_dict:#同切片的首序号已经存在
                             found = False
@@ -204,21 +249,23 @@ for jsonname in os.listdir(source_folder):
                                 index2front_dict[sync_index] = frontdot
                         else:#同切片的首序号不在字典
                             found = False
+                            frontindex = indexT
                             for key, valuefront in index2front_dict.items():
                                 if frontdot == valuefront:
                                     found = True
+                                    frontindex = key
                                     break 
                             if found:#前部序号已经在字典
                                 indexfront = str(indexT) + linkkey + frontdot
                                 indexfront2codes_dict[indexfront] = []
-                                indexfront2codes_dict[indexfront].append(articlecode)
+                                #indexfront2codes_dict[indexfront].append(articlecode)
                                 indexreplist.append(indexT)
                                 frontreplist.append(frontdot)
                                 index2front_dict[indexT] = frontdot
                             else:#而前部序号不存在
                                 indexfront = str(indexT) + linkkey + frontdot
                                 indexfront2codes_dict[indexfront] = []
-                                indexfront2codes_dict[indexfront].append(articlecode)
+                                #indexfront2codes_dict[indexfront].append(articlecode)
                                 indexreplist.append(indexT)
                                 frontreplist.append(frontdot)
                                 index2front_dict[indexT] = frontdot
