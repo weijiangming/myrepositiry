@@ -6,7 +6,6 @@ from pathlib import Path
 import json
 import openpyxl
 import random
-import inspect
 
 parent_dir = str(Path(__file__).resolve().parent.parent)# 获取当前文件的父目录
 sys.path.append(parent_dir)# 将父目录添加到sys.path
@@ -21,7 +20,6 @@ from filesfunction import opfiles
 # ③如果被留下分片“切片不带格式”和“切片带格式”的行首没有“x.x.x”或“x.x”样式的编号，那么就将重新填的条文编号放在行首，如果这串条文编号是连续的（例如“1.0.1、1.0.2、1.0.3、1.0.4”）那么久简写成“1.0.1~1.0.4”样式；如果有不连续的号，就单独拿出来放在最后，用“、”隔开（例如“1.0.1、1.0.2、1.0.3、1.0.4、1.0.8”简写成“1.0.1~1.0.4、1.0.8”；如果被留下分片“切片不带格式”和“切片带格式”的行首有“x.x.x”或“x.x”样式的编号，那么就不用重新填编号
 
 # ④编号和正文之间还是要添加一个空格
-
 
 def simplify_versions(versions):
     # 将输入的字符串按照逗号分隔，生成版本列表，并去除多余的空格
@@ -65,6 +63,7 @@ def simplify_versions(versions):
     
     return '、'.join(simplified)
 
+
 def get_string_before_last_dot(input_string):
     # 找到最后一个"."的位置
     last_dot_index = input_string.rfind('.')
@@ -74,37 +73,6 @@ def get_string_before_last_dot(input_string):
     else:
         return input_string
 
-#index是否在indexfront_codes_dict
-def isIndexInDictKey(index, dict, linksymbol):
-    frontlist = []
-    found = False
-    for key in dict:
-        try:
-            indexT = key.split(linksymbol)[0]
-            if index == int(indexT):
-                found = True
-                frontlist.append(key.split(linksymbol)[1]) 
-
-        except IndexError:
-            continue
-    return found, frontlist
-    #使用方法：found, frontlist = 
-
-#frontdotcode是否在indexfront_codes_dict
-def isfrontcodeInDictValue(frontcode, dict, linksymbol):
-    
-    found = False
-    indexlist = []
-    for key in dict:
-        try:
-            frontcodeT = key.split(linksymbol)[1]
-            if frontcode == frontcodeT:
-                found = True
-                indexlist.append(key.split(linksymbol)[0])
-                
-        except IndexError:
-            continue
-    return found, indexlist
 
 # 定义文件夹路径
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
@@ -113,10 +81,9 @@ source_folder, parent_folder = opfiles.OpFiles.select_folder()
 workbook = openpyxl.Workbook()
 sheet = workbook.active
 
-linkkey = '_' 
 row = 0
 icount = 0
-
+icount2 = 0#测试用
 icount3 = 0
 icount4 = 0
 icount5 = 0
@@ -125,8 +92,10 @@ icount6 = 0
 bmod = True
 
 for jsonname in os.listdir(source_folder):
-
     bmod = False
+    icount = icount + 1
+   
+
     #定义数组
     jsonnames = []#。json文件的文件名
     filenames = []#"文档名称"对应的值
@@ -135,31 +104,28 @@ for jsonname in os.listdir(source_folder):
     slicetext_format_list = []#"切片带格式"
     articlecodes = []#"条文编号"
 
-    #定义重复的
-    #定义字典 一个重复组：重复分片的第一项的序号+对应的所有重复条文编号最后的"."之前的部分
-    index2front_dict = {}
-    #重复组条文编号最后的"."之前的部分+重复组第一项以外的其他项的条文编号的数组（frontdot2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
-    indexfront_codes_dict = {}
+    #重复的
+     #定义字典 一个重复组：重复组第一项的序号+重复组第一项以外ide其他项的条文编号的数组（Index2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
+    repeat_dict = {}
+    frontdot_dict = {}#重复组第一项的序号+条文编号最后的"."之前的部分
+    reparticlecodes = [] #有重复的除第一条文编号之外的
+
     if jsonname.endswith('.json') or jsonname.endswith('.Json'):
         file_path = os.path.join(source_folder, jsonname)
         #jsonnames.append(jsonname)
         # 打开并读取JSON文件
 
         # 新建一个列表，用于存储需要保留的条目
-        sync_index = -1
         new_data = []
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
             icount = icount + 1
             if icount % 10 == 0:
                 print(icount)
-        
-        #二级标题分组
-        articlecodesgroup = []#"条文编号"
         try:
             for entry in data:  
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
-                    sync_index = sync_index + 1
+                    icount2 = icount2 + 1
                     filename = entry["文档名称"]
                     slicetext = entry["切片不带格式"]
                     slicetext_format = entry["切片带格式"]
@@ -182,58 +148,26 @@ for jsonname in os.listdir(source_folder):
                     else:
                         pass
 
-                    #test
-                    twbhT = entry["条文编号"]
-                    if twbhT == "4.2.6":#"4.5.5":
-                        pass
+                    if newsubstring in slicetexts or newsubstringf in slicetext_format_list:
+                        #说明第二次出现，重复了
+                        indexT = slicetexts.index(newsubstring)
+                        if indexT in repeat_dict:#
+                            #最后的"."之前的编号一样才是一组如5.1.2和5.3.6 ，就算切片内容相同，也要分两组。
+                            frontdot = get_string_before_last_dot(articlecode)
+                            #frontdot = get_string_before_last_dot(articlecode)
 
-                    if newsubstring in slicetexts:
-                        #进入这里切片重复了
-                        indexT = slicetexts.index(newsubstring)#有重复的切片正在数组里的首序号
-                        frontdot = get_string_before_last_dot(articlecode)
-                       
-                        #重复4种情况：就是index 和 front和字典的4种情况：
-                        #1.index和front都在；2.index在和front不在；3.index不在和front在；4.index和front都不在；
-                        #情况1、2。
-                        found, frontlist = isIndexInDictKey(indexT,indexfront_codes_dict,linkkey)
-                        if found:#重复组已有在字典记录  
-                            #情况1.index和front都在
-                            if frontdot in frontlist:
-                                indexfront = str(indexT) + linkkey + frontdot 
-                                try:
-                                    indexfront_codes_dict[indexfront].append(articlecode)
-                                except Exception as e:
-                                    print(f"An error occurred: {e}")
-                                    print(len(indexfront_codes_dict))
-                                    print(jsonname)
-
-                            else:#情况2.index在和front不在
-                                foundtwbh = articlecodes[indexT]
-                                foundfront = get_string_before_last_dot(foundtwbh)
-                                if foundfront != frontdot:
-                                    indexfront = str(sync_index) + linkkey + frontdot
-                                    indexfront_codes_dict[indexfront] = [] 
-                                else:
-                                    pass #这种情况待调试补上
-                                    #indexfront_codes_dict[indexfront].append(articlecode)
+                            if get_string_before_last_dot(articlecode) == get_string_before_last_dot(articlecodes[indexT]):
+                                #有记录 重复项已在字典里，这时加入
+                                repeat_dict[indexT].append(articlecode)
+                            else:
+                                #说明重复项字典里还没记录
+                                repeat_dict[icount2] = []
+                                repeat_dict[icount2].append(articlecode)
                         else:
-                            #情况3index不在和front在
-                            if frontdot in frontlist:
-                                indexfront = str(indexT) + linkkey + frontdot
-                                indexfront_codes_dict[indexfront] = []
-                                #indexfront_codes_dict[indexfront].append(articlecode)
-                                index2front_dict[indexT] = frontdot
-                            else:#情况4 跨组的切片相同：条件：indexT的front和当前frontcode不同，不跨组则相同
-                                foundtwbh = articlecodes[indexT]
-                                foundfront = get_string_before_last_dot(foundtwbh)
-                                if foundfront != frontdot:#不是在当前组找到 只是当前组有于其他组相同的切片；但是字典里记录下，不保证当前组会有与sync_index相同的切片
-                                    indexfront = str(sync_index) + linkkey + frontdot
-                                    indexfront_codes_dict[indexfront] = []
-                                    #indexfront_codes_dict[indexfront].append(articlecode)
-                                else:
-                                    indexfront = str(indexT) + linkkey + frontdot
-                                    indexfront_codes_dict[indexfront] = []
-                                    indexfront_codes_dict[indexfront].append(articlecode)
+                            #说明重复项字典里还没记录
+                            repeat_dict[indexT] = []
+                            repeat_dict[indexT].append(articlecode)
+                            pass
 
                     articlecodes.append(articlecode)
                     slicetexts.append(newsubstring)
@@ -252,30 +186,23 @@ for jsonname in os.listdir(source_folder):
                 #确保和上一次for entry in data:规则相同，保证序号相同。
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
                     sync_index = sync_index + 1
-                
-                #test
-                twbhT = entry["条文编号"]
-                if twbhT == "4.3.5":
-                    pass
-                
                 #
-                found = False
                 twbhT = entry["条文编号"]
-                frontdot = get_string_before_last_dot(twbhT)
-                for key, value_list in indexfront_codes_dict.items():
+                # 遍历字典
+                found = False
+                for key, value_list in repeat_dict.items():
                     if twbhT in value_list:
                         found = True
                         break 
 
                 if found == False:#需要保留的都在new_data里
-                    #只处理sync_index in inidex2front_dict对应的分片，其他不用动，因为整个entry会加入new_data：new_data.append(entry)
-                    indexfront = str(sync_index) + linkkey + frontdot
-                    if indexfront in indexfront_codes_dict:
+                    #只处理sync_index in repeat_dict对应的分片，其他不用动，因为整个entry会加入new_data：new_data.append(entry)
+                    if sync_index in repeat_dict:
                         icount4 = icount4 + 1
                         #②对于去重后的分片处理：删除“切片不带格式”和“切片带格式”行首的条文编号，然后将所有重复分片各自的条文编号拿出来填被留下分片的条文编号字段中。并用“、”隔开
                         articlecoderep = articlecodes[sync_index]
                         newarticlecodes = articlecoderep
-                        twbhlist = indexfront_codes_dict[indexfront]
+                        twbhlist = repeat_dict[sync_index]
                         for codeT in twbhlist:
                             newarticlecodes = newarticlecodes + "、" + codeT
                         articlecode_T = entry["条文编号"]
@@ -289,7 +216,10 @@ for jsonname in os.listdir(source_folder):
 
                         slicetext = entry["切片不带格式"]
                         slicetext_format = entry["切片带格式"]
-                        #articlecode = entry["条文编号"]
+                        articlecode = entry["条文编号"]
+
+                        newsubstring = slicetext[len(articlecode_T):]
+                        newsubstringf = slicetext_format[len(articlecode_T):]
 
                         newsubstring = slicetext.lstrip()
                         newsubstringf = slicetext_format.lstrip()
@@ -307,6 +237,7 @@ for jsonname in os.listdir(source_folder):
                             newsubstringf = newsubstringf[len(articlecode_T):]
                         else:
                             pass
+
 
                         newsubstring2 = newsubstring.lstrip()
                         newsubstring3 = newsubstring2[:10]
@@ -329,20 +260,7 @@ for jsonname in os.listdir(source_folder):
                             else:
                                 bMatch = False
                         else:#没有“x.x.x”或“x.x”样式的编号
-                            if bMatch:
-                                pattern2 = r'[A-Za-z0-9]+\.[A-Za-z0-9]+'
-                                matches2 = re.findall(pattern2, newsubstring3)
-                                if matches2:
-                                    match_res = matches2[0]
-                                    indexfind = -1
-                                    indexfind = newsubstring3.find(match_res)
-                                    if indexfind == 0:
-                                        slicetextres = newsubstring
-                                        slicetext_formatres = newsubstringf
-                                    else:
-                                        bMatch = False
-                                else:
-                                    bMatch = False
+                            bMatch = False
 
                         if not bMatch:
                             #条文编号放在行首,格式要求 像“1.0.1~1.0.4”、“1.0.1~1.0.4、1.0.8”
