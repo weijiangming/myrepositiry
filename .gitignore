@@ -13,3 +13,4 @@ temp/
 # 忽略名为 build 的文件夹
 build/
 pyproject/filesmanage/filesfunction/__pycache__/opfiles.cpython-312.pyc
+ragproject/.env
