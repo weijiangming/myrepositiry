@@ -5,6 +5,10 @@
 1.3 工标库json修改重复切片 gbk_modify_repeat.py
 1.4 根据excel里记录文档名称，从文件夹中取出文件到新文件夹中 movefilesbyexclevalue.py
 
+2.filesmanage/filesfunction
+
+2.1与pdf同名的doc和docx移到另一个文件夹 samename_manage.py
+
 
 需求说明
 
