@@ -22,6 +22,12 @@ def samenameop(folder_path, parent_folder):
                     #二级
                     pdffilename = ""
                     bBreak = False
+
+                    # if len(files2) > 2:
+                    #     pass
+                    #     shutil.move(dir_path2,folder_samedoc)
+                    #     continue
+
                     for file2 in files2:
                         if file2.lower().endswith('.pdf'):
                             pdffilename = opfiles.OpFiles.remove_suffix(file2, 4)

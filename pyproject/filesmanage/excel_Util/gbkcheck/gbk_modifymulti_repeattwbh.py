@@ -7,6 +7,8 @@ import json
 import openpyxl
 import random
 
+parent_dir = str(Path(__file__).resolve().parent.parent.parent)# 获取当前文件的父目录
+sys.path.append(parent_dir)# 将父目录添加到sys.path
 parent_dir = str(Path(__file__).resolve().parent.parent)# 获取当前文件的父目录
 sys.path.append(parent_dir)# 将父目录添加到sys.path
 from filesfunction import opfiles
@@ -93,8 +95,6 @@ bmod = True
 
 for jsonname in os.listdir(source_folder):
     bmod = False
-    icount = icount + 1
-   
 
     #定义数组
     jsonnames = []#。json文件的文件名
@@ -114,7 +114,7 @@ for jsonname in os.listdir(source_folder):
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
             icount = icount + 1
-            if icount % 10 == 0:
+            if icount % 100 == 0:
                 print(icount)
         try:
             for entry in data:  

@@ -1,5 +1,4 @@
-#工标库检查json有某种情况拎出来另一个文件夹
-#条文说明JSON文件中 条文编号x相同的情况另出来
+#条文说明JSON文件中 条文编号相同的情况拎出来到《*_切片内容重复的json文件》的文件夹
 import re
 import os
 import sys
@@ -9,6 +8,8 @@ import shutil
 import openpyxl
 import random
 
+parent_dir = str(Path(__file__).resolve().parent.parent.parent)# 获取当前文件的父目录
+sys.path.append(parent_dir)# 将父目录添加到sys.path
 parent_dir = str(Path(__file__).resolve().parent.parent)# 获取当前文件的父目录
 sys.path.append(parent_dir)# 将父目录添加到sys.path
 from filesfunction import opfiles

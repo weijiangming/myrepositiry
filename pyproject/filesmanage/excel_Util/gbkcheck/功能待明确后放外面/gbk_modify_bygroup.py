@@ -132,14 +132,14 @@ for jsonname in os.listdir(source_folder):
     filenames = []#"文档名称"对应的值
     sliceuuids = []#"切片id"
     slicetexts = []#"切片不带格式"
-    slicetext_format_list = []#"切片带格式"
+    slicetexts_f = []#"切片带格式"
+    
     articlecodes = []#"条文编号"
 
     #定义重复的
     #定义字典 一个重复组：重复分片的第一项的序号+对应的所有重复条文编号最后的"."之前的部分
     index2front_dict = {}
     #重复组条文编号最后的"."之前的部分+重复组第一项以外的其他项的条文编号的数组（frontdot2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
-    frontindex_codes_dictdel = {}
     if jsonname.endswith('.json') or jsonname.endswith('.Json'):
         file_path = os.path.join(source_folder, jsonname)
         #jsonnames.append(jsonname)
@@ -238,11 +238,11 @@ for jsonname in os.listdir(source_folder):
 
                         articlecodes.clear()
                         slicetexts.clear()
-                        slicetext_format_list.clear()
+                        slicetexts_f.clear()
                     
                     articlecodes.append(articlecode)
                     slicetexts.append(newsubstring)
-                    slicetext_format_list.append(newsubstringf)
+                    slicetexts_f.append(newsubstringf)
                     frontcodepre = frontcode
 
                    
@@ -371,7 +371,6 @@ for jsonname in os.listdir(source_folder):
                                 icount6 = icount6 + 1
                             
                             #保证后面有空格
-                            
                             if newsubstring and newsubstring[0] == ' ':
                                 slicetextres = result2 + newsubstring
                             else:
