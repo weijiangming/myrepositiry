@@ -4,7 +4,7 @@
 1.2 工标库检查json有某种情况拎出来另一个文件夹            gbk_pickandmove.py 
 1.3 工标库json修改重复切片                              gbk_modify_repeat.py
 1.4 根据excel里记录文档名称，从文件夹中取出文件到新文件夹中         movefilesbyexclevalue.py
-
+1.5 将指定文件夹及其子文件夹中的文件名写入到Excel文件中             recordnames.py
 
 2.filesmanage/filesfunction
 
