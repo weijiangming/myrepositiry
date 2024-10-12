@@ -120,7 +120,8 @@ def load_knowledge_db(path, embeddings):
 if __name__ == "__main__":
     #create_db(embeddings="m3e")
     vectordb = create_db(embeddings="zhipuai")
-    question = "什么是机器学习"
+    #question = "什么是机器学习"
+    question = "我国已建成的采用外套结构加层的工程，基本上可分为哪两大类"
     #question = "秋天穿针织衫小技巧"
     sim_docs = vectordb.similarity_search(question, k=3)
     print(f"检索到的内容数：{len(sim_docs)}")
