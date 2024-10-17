@@ -1,10 +1,17 @@
 1.filesmanage/excel_Util
 
-1.1 提取json的文件名+json文档里"文档名称"各一列          getjsonname.py 
+1.1filesmanage/excel_Util/gbkcheck
+1.1.1 工标库删除json条纹编号重复切片                    gbk_delrepeattwbh.py
+1.1.2 工标库json修改重复切片合并等；执行该文件之前先去条纹编号和切片都相同的情况。                  gbk_modify_bygroupclever.py
+1.1.3 条文说明JSON文件中 条文编号相同的情况拎出来到《*_切片内容重复的json文件》的文件夹            gbk_pickandmovesametwbh.py
+
 1.2 工标库检查json有某种情况拎出来另一个文件夹            gbk_pickandmove.py 
 1.3 工标库json修改重复切片                              gbk_modify_repeat.py
 1.4 根据excel里记录文档名称，从文件夹中取出文件到新文件夹中         movefilesbyexclevalue.py
 1.5 将指定文件夹及其子文件夹中的文件名写入到Excel文件中             recordnames.py
+1.6 提取json的文件名+json文档里"文档名称"各一列          getjsonname.py 
+
+gbk_delrepeattwbh.py
 
 2.filesmanage/filesfunction
 
