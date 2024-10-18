@@ -1,4 +1,4 @@
-#工标库json修改重复切片合并等；执行该文件之前先去条纹编号和切片都相同的情况
+#工标库json条文编号有漏的拎出来并记录到文件夹
 import re
 import os
 import sys
@@ -13,67 +13,7 @@ sys.path.append(parent_dir)# 将父目录添加到sys.path
 parent_dir = str(Path(__file__).resolve().parent.parent)# 获取当前文件的父目录
 sys.path.append(parent_dir)# 将父目录添加到sys.path
 from filesfunction import opfiles
-
-# 搜索出“切片不带格式”和“切片带格式”中除了行首的条文编号不同，其余部分的文字内容一样的分片，进行如下处理：
-
-# ①记录所有重复项的条文编号字段，留下第一个，其余的重复项分片删除
-
-# ②对于去重后的分片处理：删除“切片不带格式”和“切片带格式”行首的条文编号，然后将所有重复分片各自的条文编号拿出来填被留下分片的条文编号字段中。并用“、”隔开
-
-# ③如果被留下分片“切片不带格式”和“切片带格式”的行首没有“x.x.x”或“x.x”样式的编号，那么就将重新填的条文编号放在行首，如果这串条文编号是连续的（例如“1.0.1、1.0.2、1.0.3、1.0.4”）那么久简写成“1.0.1~1.0.4”样式；如果有不连续的号，就单独拿出来放在最后，用“、”隔开（例如“1.0.1、1.0.2、1.0.3、1.0.4、1.0.8”简写成“1.0.1~1.0.4、1.0.8”；如果被留下分片“切片不带格式”和“切片带格式”的行首有“x.x.x”或“x.x”样式的编号，那么就不用重新填编号
-
-# ④编号和正文之间还是要添加一个空格
-
-def simplify_versions(versions):
-    # 将输入的字符串按照逗号分隔，生成版本列表，并去除多余的空格
-    version_list = [v.strip() for v in versions.split('、')]
-    
-    # 初始化简化版本列表
-    simplified = []
-    
-    # 初始化一个列表，用于存储连续的版本号
-    current_range = []
-    
-    # 遍历版本列表
-    for i in range(len(version_list)):
-        if not current_range:  # 如果current_range为空，添加当前版本
-            current_range.append(version_list[i])
-        else:
-            # 检查当前版本与上一个版本是否为连续版本
-            current_version_parts = version_list[i].split('.')
-            prev_version_parts = current_range[-1].split('.')
-            
-            # 比较最后一部分是否相差1，且前面部分是否相同
-            iscontinuous = False
-            
-            # try:
-                                       
-            # except Exception as e:
-            try:
-                iscontinuous = (len(current_version_parts) == len(prev_version_parts) and
-                    current_version_parts[:-1] == prev_version_parts[:-1] and
-                    int(current_version_parts[-1]) == int(prev_version_parts[-1]) + 1)
-            except Exception as e:
-                iscontinuous = False
-            if iscontinuous:
-                current_range.append(version_list[i])  # 如果连续，加入current_range
-            else:
-                # 如果不连续，结束当前range，并存储到simplified
-                if len(current_range) > 2:  # 如果连续超过两个，才简写为范围
-                    simplified.append(f"{current_range[0]}~{current_range[-1]}")
-                else:
-                    # 如果是两个连续版本或单独版本，用“、”隔开
-                    simplified.extend(current_range)
-                current_range = [version_list[i]]  # 开始一个新的range
-    
-    # 最后一次的range处理
-    if current_range:
-        if len(current_range) > 2:  # 如果最后一段有超过两个版本连续
-            simplified.append(f"{current_range[0]}~{current_range[-1]}")
-        else:
-            simplified.extend(current_range)  # 两个连续版本或单独版本
-    
-    return '、'.join(simplified)
+from filenamehelpers import filenamesort
 
 def get_string_before_last_dot(input_string):
     # 找到最后一个"."的位置
@@ -84,37 +24,6 @@ def get_string_before_last_dot(input_string):
     else:
         return input_string
 
-#index是否在frontindex_codes_dict
-def isIndexInDictKey(index, dict, linksymbol):
-    frontlist = []
-    found = False
-    for key in dict:
-        try:
-            indexT = key.split(linksymbol)[1]
-            if index == int(indexT):
-                found = True
-                frontlist.append(key.split(linksymbol)[0]) 
-
-        except IndexError:
-            continue
-    return found, frontlist
-    #使用方法：found, frontlist = 
-
-#frontdotcode是否在frontindex_codes_dict
-def isfrontcodeInDictValue(frontcode, dict, linksymbol):
-    
-    found = False
-    indexlist = []
-    for key in dict:
-        try:
-            frontcodeT = key.split(linksymbol)[0]
-            if frontcode == frontcodeT:
-                found = True
-                indexlist.append(key.split(linksymbol)[1])
-                
-        except IndexError:
-            continue
-    return found, indexlist
 
 # 定义文件夹路径
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
@@ -217,10 +126,7 @@ for jsonname in os.listdir(source_folder):
                         content2codes_dict[newsubstring] = []
                     content2codes_dict[newsubstring].append(articlecode)
                     
-                    # articlecodes.append(articlecode)
-                    # slicetexts.append(newsubstring)
-                    # slicetexts_f.append(newsubstringf)
-                    # frontcodepre = frontcode
+                 
                 else:
                     print(f'{jsonname} 字段不全缺；条文编号：{str(articlecode)}')#
             #endfor
@@ -252,10 +158,6 @@ for jsonname in os.listdir(source_folder):
                 if len(code_list) == 1:
                     issave = True
                 elif len(code_list) > 1:
-                    
-                    #['2.0.1', '2.0.2', '2.0.3', '2.0.4', '2.0.5', '2.0.6', '2.0.7', '2.0.8', '2.0.9', '2.0.13', '3.1.2', '3.1.3']
-                    #字典frontcode~codes 键"2.0" 值['2.0.1', '2.0.2', '2.0.3', '2.0.4', '2.0.5', '2.0.6', '2.0.7', '2.0.8', '2.0.9', '2.0.13']
-                    #键"3.1" 值 ['3.1.2', '3.1.3']
                     frontcode2codes_dict = {}
                     for code in code_list:
                         frontcodeT = get_string_before_last_dot(code)
@@ -278,12 +180,7 @@ for jsonname in os.listdir(source_folder):
                                     else:
                                         newarticlecodes = newarticlecodes + "、" + codett
                                 entry["条文编号"]  = newarticlecodes
-                                
-                                #修改切片
-                                # ③如果被留下分片“切片不带格式”和“切片带格式”的行首没有“x.x.x”或“x.x”样式的编号，那么就将重新填的条文编号放在行首
-                                # ，如果这串条文编号是连续的（例如“1.0.1、1.0.2、1.0.3、1.0.4”）那么久简写成“1.0.1~1.0.4”样式；如果有不连续的号
-                                # ，就单独拿出来放在最后，用“、”隔开（例如“1.0.1、1.0.2、1.0.3、1.0.4、1.0.8”简写成“1.0.1~1.0.4、1.0.8”
-                                # ；如果被留下分片“切片不带格式”和“切片带格式”的行首有“x.x.x”或“x.x”样式的编号，那么就不用重新填编号
+
                                 slicetext = entry["切片不带格式"]
                                 slicetext_format = entry["切片带格式"]
                                 #articlecode = entry["条文编号"]
@@ -352,7 +249,7 @@ for jsonname in os.listdir(source_folder):
                                     # result = simplify_versions(versions)
                                     # print(result)  # 输出: b.0.1~b.0.4、b.0.8
                                     try:
-                                        result2 = simplify_versions(newarticlecodes)
+                                        result2 = filenamesort.OpFileName.simplify_versions(newarticlecodes)
                                         icount5 = icount5 + 1
                                     except Exception as e:
                                         print(f"An error occurred: {e}")

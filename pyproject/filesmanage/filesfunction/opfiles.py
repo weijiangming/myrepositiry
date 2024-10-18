@@ -6,7 +6,6 @@ import openpyxl
 
 class OpFiles:
 
-
     @staticmethod
     def select_folder():
         """
