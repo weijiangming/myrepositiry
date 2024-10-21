@@ -1,58 +1,119 @@
-def simplify_versions(versions):
-    version_list = [v.strip() for v in versions.split('、')]
+import re
 
-    simplified = []
-    current_range = []
-
-    for i in range(len(version_list)):
-        if not current_range:
-            current_range.append(version_list[i])
+def find_missing_versions(versions):
+    split_versions = [re.split(r'([A-Z]?)$', version) for version in versions]
+    groups = {}
+    
+    for version_parts in split_versions:
+        base = version_parts[0]
+        letter = version_parts[1]
+        if base not in groups:
+            groups[base] = []
+        groups[base].append(letter)
+    
+    missing_versions = []
+    
+    for base, letters in groups.items():
+        if letters[0] == '':
+            # Find missing numeric versions
+            last_part_numbers = sorted(int(base.split('.')[-1]) for base in versions)
+            for i in range(last_part_numbers[0], last_part_numbers[-1]):
+                if i not in last_part_numbers:
+                    #missing_versions.append(f"{base[:-1]}{i}")
+                    missing_versions.append(f"{'.'.join(base.split('.')[:-1])}.{i}")
         else:
-            current_version_parts = version_list[i].split('.')
-            prev_version_parts = current_range[-1].split('.')
+            # Find missing alphabetic versions
+            letters = sorted(letters)
+            for i in range(ord(letters[0]), ord(letters[-1])):
+                if chr(i) not in letters:
+                    missing_versions.append(f"{base}{chr(i)}")
 
-            # 比较数字部分和字母部分是否连续
-            if (len(current_version_parts) == len(prev_version_parts) and
-                    all(a == b for a, b in zip(current_version_parts[:-1], prev_version_parts[:-1])) and
-                    int(current_version_parts[-2]) == int(prev_version_parts[-2]) and
-                    ord(current_version_parts[-1]) == ord(prev_version_parts[-1]) + 1):
-                current_range.append(version_list[i])
-            else:
-                if len(current_range) > 2:
-                    simplified.append(f"{current_range[0]}~{current_range[-1]}")
-                else:
-                    simplified.extend(current_range)
-                current_range = [version_list[i]]
+    return list(set(missing_versions))  # Avoid redundant outputs
 
-    if current_range:
-        if len(current_range) > 2:
-            simplified.append(f"{current_range[0]}~{current_range[-1]}")
-        else:
-            simplified.extend(current_range)
+def find_missing_from_string(version_string):
+    # Split the string into individual versions by the separator '、'
+    versions = version_string.split('、')
 
-    return '、'.join(simplified)
+    # Process the list of versions to find missing versions
+    return find_missing_versions(versions)
 
-# 示例测试
-versions = "1.0.1、1.0.2、1.0.3、1.0.4、1.0.8"
-result = simplify_versions(versions)
-print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+# Example usage
+test_strings = [
+    "1.0.1、1.0.2、1.0.3、1.0.4、1.0.6",
+    "1.0.11、1.0.12、1.0.13、1.0.14、1.0.16",
+    "2.0.1A、2.0.1B、2.0.1E",
+    "6.3.2A、6.3.2C、6.3.2D",
+    "b.0.1、b.0.2、b.0.3、b.0.4、b.0.5、b.0.7",
+    "C.0.1、C.0.2、C.0.4"
+]
+# test_strings = [
+#     "1.0.11、1.0.12、1.0.13、1.0.14、1.0.16"
+#]
 
-versions = "2.0.1A、2.0.1B、2.0.1C"
-result = simplify_versions(versions)
-print(result)  # 输出: 1.0.1~1.0.4、1.0.8
-
-versions = "6.3.2A、6.3.2B、6.3.2C、6.3.2D"
-result = simplify_versions(versions)
-print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+# Process each string and print the missing versions
+missing_results = [find_missing_from_string(s) for s in test_strings]
+print(missing_results)
 
 
-versions = "b.0.1、b.0.2、b.0.3、b.0.4、b.0.8"
-result = simplify_versions(versions)
-print(result)  # 输出: b.0.1~b.0.4、b.0.8
 
-versions = "C.0.1、C.0.2、C.0.4"
-result = simplify_versions(versions)
-print(result)  # 输出: C.0.1、C.0.2、C.0.4
+
+
+
+# def simplify_versions(versions):
+#     version_list = [v.strip() for v in versions.split('、')]
+
+#     simplified = []
+#     current_range = []
+
+#     for i in range(len(version_list)):
+#         if not current_range:
+#             current_range.append(version_list[i])
+#         else:
+#             current_version_parts = version_list[i].split('.')
+#             prev_version_parts = current_range[-1].split('.')
+
+#             # 比较数字部分和字母部分是否连续
+#             if (len(current_version_parts) == len(prev_version_parts) and
+#                     all(a == b for a, b in zip(current_version_parts[:-1], prev_version_parts[:-1])) and
+#                     int(current_version_parts[-2]) == int(prev_version_parts[-2]) and
+#                     ord(current_version_parts[-1]) == ord(prev_version_parts[-1]) + 1):
+#                 current_range.append(version_list[i])
+#             else:
+#                 if len(current_range) > 2:
+#                     simplified.append(f"{current_range[0]}~{current_range[-1]}")
+#                 else:
+#                     simplified.extend(current_range)
+#                 current_range = [version_list[i]]
+
+#     if current_range:
+#         if len(current_range) > 2:
+#             simplified.append(f"{current_range[0]}~{current_range[-1]}")
+#         else:
+#             simplified.extend(current_range)
+
+#     return '、'.join(simplified)
+
+# # 示例测试
+# versions = "1.0.1、1.0.2、1.0.3、1.0.4、1.0.8"
+# result = simplify_versions(versions)
+# print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+
+# versions = "2.0.1A、2.0.1B、2.0.1C"
+# result = simplify_versions(versions)
+# print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+
+# versions = "6.3.2A、6.3.2B、6.3.2C、6.3.2D"
+# result = simplify_versions(versions)
+# print(result)  # 输出: 1.0.1~1.0.4、1.0.8
+
+
+# versions = "b.0.1、b.0.2、b.0.3、b.0.4、b.0.8"
+# result = simplify_versions(versions)
+# print(result)  # 输出: b.0.1~b.0.4、b.0.8
+
+# versions = "C.0.1、C.0.2、C.0.4"
+# result = simplify_versions(versions)
+# print(result)  # 输出: C.0.1、C.0.2、C.0.4
 
 # def simplify_versions(versions):
 #     # 将输入的字符串按照逗号分隔，生成版本列表，并去除多余的空格

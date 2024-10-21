@@ -26,12 +26,11 @@ class OpFileName:
                 
                 # 比较最后一部分是否相差1，且前面部分是否相同
                 iscontinuous = False
-                
-                # try:
-                                        
-                # except Exception as e:
+
                 try:
-                    iscontinuous = (len(current_version_parts) == len(prev_version_parts) and
+                    iscontinuous = (len(
+                        
+                    ) == len(prev_version_parts) and
                         current_version_parts[:-1] == prev_version_parts[:-1] and
                         int(current_version_parts[-1]) == int(prev_version_parts[-1]) + 1)
                 except Exception as e:

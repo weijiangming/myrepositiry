@@ -24,6 +24,42 @@ def get_string_before_last_dot(input_string):
     else:
         return input_string
 
+def find_missing_versions(versions):
+    split_versions = [re.split(r'([A-Z]?)$', version) for version in versions]
+    groups = {}
+    
+    for version_parts in split_versions:
+        base = version_parts[0]
+        letter = version_parts[1]
+        if base not in groups:
+            groups[base] = []
+        groups[base].append(letter)
+    
+    missing_versions = []
+    
+    for base, letters in groups.items():
+        if letters[0] == '':
+            # Find missing numeric versions
+            last_part_numbers = sorted(int(base.split('.')[-1]) for base in versions)
+            for i in range(last_part_numbers[0], last_part_numbers[-1]):
+                if i not in last_part_numbers:
+                    #missing_versions.append(f"{base[:-1]}{i}")
+                    missing_versions.append(f"{'.'.join(base.split('.')[:-1])}.{i}")
+        else:
+            # Find missing alphabetic versions
+            letters = sorted(letters)
+            for i in range(ord(letters[0]), ord(letters[-1])):
+                if chr(i) not in letters:
+                    missing_versions.append(f"{base}{chr(i)}")
+
+    return list(set(missing_versions))  # Avoid redundant outputs
+
+def find_missing_from_string(version_string):
+    # Split the string into individual versions by the separator '、'
+    versions = version_string.split('、')
+
+    # Process the list of versions to find missing versions
+    return find_missing_versions(versions)
 
 # 定义文件夹路径
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
@@ -55,7 +91,7 @@ for jsonname in os.listdir(source_folder):
     
     articlecodes = []#"条文编号"
 
-    #定义重复的
+    #定义
     #定义字典 一个重复组：重复分片的第一项的序号+对应的所有重复条文编号最后的"."之前的部分
     index2front_dict = {}
     #重复组条文编号最后的"."之前的部分+重复组第一项以外的其他项的条文编号的数组（frontdot2codelist）；字典一项对应一个重复组；字典由多个重复组组成。
@@ -79,6 +115,9 @@ for jsonname in os.listdir(source_folder):
         frontcodepre = ""#上一个二级标题
         frontindex_codes_dict = {}
 
+        #条文编号上级标题
+        fcode2codes_dict = {}
+        # articlecode
         content2codes_dict = {} #"切片不带格式"和"条文编号"列表的字典
         code2index_dict = {}    #"条文编号"和sync_index
 
@@ -91,53 +130,25 @@ for jsonname in os.listdir(source_folder):
                     slicetext = entry["切片不带格式"]
                     slicetext_format = entry["切片带格式"]
                     articlecode = entry["条文编号"]
-
-
-                    if articlecode not in code2index_dict:
-                        code2index_dict[articlecode] = []
-                    code2index_dict[articlecode] = sync_index
-
-                    if articlecode == "2.0.2":#
-                        pass
-
                     frontcode = get_string_before_last_dot(articlecode)
-                    bsamefront = True
-                    if sync_index != 0 and frontcode != frontcodepre:
-                        bsamefront = False
 
-                    newsubstring = slicetext
-                    newsubstringf = slicetext_format
-                    #切片的头部剪掉与"条文编号"相同的部分
-                    indexfindT = -1
-                    indexfindT = newsubstring.find(str(articlecode))
-                    if indexfindT == 0:
-                        newsubstring = newsubstring[len(articlecode):]
-                    else:
-                        pass
-
-                    indexfindT = -1
-                    indexfindT = newsubstringf.find(str(articlecode))
-                    if indexfindT == 0:
-                        newsubstringf = newsubstringf[len(articlecode):]
-                    else:
-                        pass
-
-                    if newsubstring not in content2codes_dict:
-                        content2codes_dict[newsubstring] = []
-                    content2codes_dict[newsubstring].append(articlecode)
-                    
-                 
+                    if frontcode not in fcode2codes_dict:
+                        fcode2codes_dict[frontcode] = []
+                    if articlecode not in fcode2codes_dict[frontcode]:
+                        fcode2codes_dict[frontcode].append(articlecode)
                 else:
                     print(f'{jsonname} 字段不全缺；条文编号：{str(articlecode)}')#
-            #endfor
 
             #开始处理一个文件
             icount3 = icount3 + 1
             # ①记录所有重复项的条文编号字段，留下第一个，其余的重复项分片删除
             
             sync_index = -1#确保第一个的序号是零
-            for entry in data:
+            for fcode, codes in fcode2codes_dict.items():
+                codesless = find_missing_versions(codes)
+
                 #确保和上一次for entry in data:规则相同，保证sync_index序号相同。
+                continue
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
                     sync_index = sync_index + 1
                 
