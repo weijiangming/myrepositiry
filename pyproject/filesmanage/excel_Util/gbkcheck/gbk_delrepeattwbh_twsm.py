@@ -11,7 +11,6 @@ parent_dir = str(Path(__file__).resolve().parent.parent)# 获取当前文件的�
 sys.path.append(parent_dir)# 将父目录添加到sys.path
 from filesfunction import opfiles
 
-
 # 定义文件夹路径
 source_folder, parent_folder = opfiles.OpFiles.select_folder()
 
@@ -23,7 +22,7 @@ row = 0
 icount = 0
 icount2 = 0 #测试用
 icount3 = 0
-icount4 = 0
+icount4 = 0 
 icount5 = 0
 icount6 = 0
 # 遍历源文件夹中的所有文件

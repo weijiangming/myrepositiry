@@ -1,7 +1,7 @@
 1.filesmanage/excel_Util
 
 1.1filesmanage/excel_Util/gbkcheck
-1.1.1 工标库删除json条纹编号重复切片                    gbk_delrepeattwbh.py
+1.1.1 （注：只适用条文说明）                                                            gbk_delrepeattwbh.py
 1.1.2 工标库json修改重复切片合并等；执行该文件之前先去条纹编号和切片都相同的情况。                  gbk_modify_bygroupclever.py
 1.1.3 条文说明JSON文件中 条文编号相同的情况拎出来到《*_切片内容重复的json文件》的文件夹            gbk_pickandmovesametwbh.py
 

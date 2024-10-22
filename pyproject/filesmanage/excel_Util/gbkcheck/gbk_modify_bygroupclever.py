@@ -15,67 +15,6 @@ sys.path.append(parent_dir)# 将父目录添加到sys.path
 from filesfunction import opfiles
 from filenamehelpers import filenamesort
 
-# 搜索出“切片不带格式”和“切片带格式”中除了行首的条文编号不同，其余部分的文字内容一样的分片，进行如下处理：
-
-# ①记录所有重复项的条文编号字段，留下第一个，其余的重复项分片删除
-
-# ②对于去重后的分片处理：删除“切片不带格式”和“切片带格式”行首的条文编号，然后将所有重复分片各自的条文编号拿出来填被留下分片的条文编号字段中。并用“、”隔开
-
-# ③如果被留下分片“切片不带格式”和“切片带格式”的行首没有“x.x.x”或“x.x”样式的编号，那么就将重新填的条文编号放在行首，如果这串条文编号是连续的（例如“1.0.1、1.0.2、1.0.3、1.0.4”）那么久简写成“1.0.1~1.0.4”样式；如果有不连续的号，就单独拿出来放在最后，用“、”隔开（例如“1.0.1、1.0.2、1.0.3、1.0.4、1.0.8”简写成“1.0.1~1.0.4、1.0.8”；如果被留下分片“切片不带格式”和“切片带格式”的行首有“x.x.x”或“x.x”样式的编号，那么就不用重新填编号
-
-# ④编号和正文之间还是要添加一个空格
-
-# def simplify_versions(versions):
-#     # 将输入的字符串按照逗号分隔，生成版本列表，并去除多余的空格
-#     version_list = [v.strip() for v in versions.split('、')]
-    
-#     # 初始化简化版本列表
-#     simplified = []
-    
-#     # 初始化一个列表，用于存储连续的版本号
-#     current_range = []
-    
-#     # 遍历版本列表
-#     for i in range(len(version_list)):
-#         if not current_range:  # 如果current_range为空，添加当前版本
-#             current_range.append(version_list[i])
-#         else:
-#             # 检查当前版本与上一个版本是否为连续版本
-#             current_version_parts = version_list[i].split('.')
-#             prev_version_parts = current_range[-1].split('.')
-            
-#             # 比较最后一部分是否相差1，且前面部分是否相同
-#             iscontinuous = False
-            
-#             # try:
-                                       
-#             # except Exception as e:
-#             try:
-#                 iscontinuous = (len(current_version_parts) == len(prev_version_parts) and
-#                     current_version_parts[:-1] == prev_version_parts[:-1] and
-#                     int(current_version_parts[-1]) == int(prev_version_parts[-1]) + 1)
-#             except Exception as e:
-#                 iscontinuous = False
-#             if iscontinuous:
-#                 current_range.append(version_list[i])  # 如果连续，加入current_range
-#             else:
-#                 # 如果不连续，结束当前range，并存储到simplified
-#                 if len(current_range) > 2:  # 如果连续超过两个，才简写为范围
-#                     simplified.append(f"{current_range[0]}~{current_range[-1]}")
-#                 else:
-#                     # 如果是两个连续版本或单独版本，用“、”隔开
-#                     simplified.extend(current_range)
-#                 current_range = [version_list[i]]  # 开始一个新的range
-    
-#     # 最后一次的range处理
-#     if current_range:
-#         if len(current_range) > 2:  # 如果最后一段有超过两个版本连续
-#             simplified.append(f"{current_range[0]}~{current_range[-1]}")
-#         else:
-#             simplified.extend(current_range)  # 两个连续版本或单独版本
-    
-#     return '、'.join(simplified)
-
 def get_string_before_last_dot(input_string):
     # 找到最后一个"."的位置
     last_dot_index = input_string.rfind('.')
