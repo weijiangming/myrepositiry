@@ -11,7 +11,7 @@
 1.5 将指定文件夹及其子文件夹中的文件名写入到Excel文件中             recordnames.py
 1.6 提取json的文件名+json文档里"文档名称"各一列          getjsonname.py 
 
-gbk_delrepeattwbh.py
+
 
 2.filesmanage/filesfunction
 

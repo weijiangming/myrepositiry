@@ -148,7 +148,8 @@ for jsonname in os.listdir(source_folder):
                 codesless = find_missing_versions(codes)
 
                 #确保和上一次for entry in data:规则相同，保证sync_index序号相同。
-                continue
+                icount6 = icount6 + 1
+                break
                 if "文档名称" in entry and "条文编号" in entry and "切片不带格式" in entry and "切片带格式" in entry:
                     sync_index = sync_index + 1
                 
@@ -266,7 +267,7 @@ for jsonname in os.listdir(source_folder):
                                         print(f"An error occurred: {e}")
                                         print(newarticlecodes)
                                         print(jsonname)
-                                        icount6 = icount6 + 1
+                                       # icount6 = icount6 + 1
                                     
                                     #保证后面有空格
                                     if newsubstring and newsubstring[0] == ' ':
@@ -322,8 +323,10 @@ for jsonname in os.listdir(source_folder):
         except json.JSONDecodeError:
             print(f'{jsonname} 该文件单独查是什么问题')
 pass
-
-excel_file_name = source_folder.split("/")[-1] + "_条文说明略写前后对比记录.xlsx"
-excelfolder_path = os.path.normpath(os.path.join(parent_folder, excel_file_name))
-workbook.save(excelfolder_path)
+print("icount6")
+print(icount6)
+ 
+# excel_file_name = source_folder.split("/")[-1] + "_条文说明略写前后对比记录.xlsx"
+# excelfolder_path = os.path.normpath(os.path.join(parent_folder, excel_file_name))
+# workbook.save(excelfolder_path)
 
