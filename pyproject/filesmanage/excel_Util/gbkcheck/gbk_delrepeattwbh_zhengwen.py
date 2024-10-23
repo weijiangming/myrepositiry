@@ -103,10 +103,12 @@ for jsonname in os.listdir(source_folder):
                                 repeat_dict_text[indexT].append(slicetext)
                         else:
                             #说明重复项字典里还没记录
-                            repeat_dict[indexT] = []
-                            repeat_dict_text[indexT] = []
-                            repeat_dict[indexT].append(sliceuuid)
-                            repeat_dict_text[indexT].append(slicetext)
+                            slicetextbase = slicetexts[indexT]
+                            if issametext(slicetextbase, slicetext, articlecode):
+                                repeat_dict[indexT] = []
+                                repeat_dict_text[indexT] = []
+                                repeat_dict[indexT].append(sliceuuid)
+                                repeat_dict_text[indexT].append(slicetext)
                             
                     articlecodes.append(articlecode) 
                     slicetexts.append(slicetext)          

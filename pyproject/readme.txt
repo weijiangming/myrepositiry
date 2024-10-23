@@ -10,6 +10,7 @@
 1.4 根据excel里记录文档名称，从文件夹中取出文件到新文件夹中         movefilesbyexclevalue.py
 1.5 将指定文件夹及其子文件夹中的文件名写入到Excel文件中             recordnames.py
 1.6 提取json的文件名+json文档里"文档名称"各一列          getjsonname.py 
+1.7 根据编号信息 判断库里是否已有此编号                     isExistBycode
 
 
 

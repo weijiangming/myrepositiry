@@ -1,4 +1,4 @@
-#根据文件名对应的标准格式规范名修改json的”"文档名称"的值
+#根据编号信息 判断库里是否已有此编号
 import tkinter as tk
 from tkinter import filedialog
 from openpyxl import load_workbook
@@ -22,7 +22,7 @@ root.withdraw()
 file_path = filedialog.askopenfilename(title='请选择Excel文件', filetypes=[('Excel文件', '*.xlsx')])
 
 # 初始化一个空字典
-index_list = []
+yesorno_list = []
 name_list = []
 code_list = []
 
@@ -46,37 +46,28 @@ if file_path:
     # 选择活动的工作表（假设是第一个表）
     sheet = workbook.active
     # 遍历每一行，将 A 列作为键，C 列作为值，假设第一行为表头，从第二行开始
-    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row, min_col=1, max_col=10, values_only=True):
-        index = row[0]  # A列
-        name = row[1]  # B列
-
-        index_list.append(index)
-        name_list.append(name)
-        code_list.append(row[2])
-
-        ck_index_list.append(row[7])
-        ck_name_list.append(row[8])
-        ck_code_list.append(row[9])
-
-    # 遍历A列中的每个单元格
-    for row in sheet.iter_rows(min_col=10, max_col=10, values_only=False):
-
-        # 获取A列单元格的值
+    
+    for row in sheet.iter_rows(min_row=3, max_row=sheet.max_row, min_col=5, max_col=6, values_only=False):
         cell = row[0]
-        a_value = cell.value
-       
-        # 计算列对应的值
-        b_value = extract_pattern(a_value)
-        # 在B列对应的单元格中填入计算后的值
-        pass
-       
+        yesorno = cell.value
+        name = row[1].value  # B列
 
-        #sheet.cell(row=cell.row, column=2, value=b_value)
-        # sheet.cell(row=cell.row, column=2, value=a_value)
+        if cell.row == 8:
+            pass
 
-    # 保存修改后的Excel文件
-    #workbook.save(file_path)
+        yesorno_list.append(yesorno)
+        name_list.append(name)
 
+        if (name == "" or name is None) and yesorno == "有":
+            sheet.cell(row=cell.row, column=7, value="检查")
+        elif (name != "" and name != None) and yesorno == "无":
+            sheet.cell(row=cell.row, column=7, value="检查")
+
+        if name is None:
+            pass
+
+    #保存修改后的Excel文件
+    workbook.save(file_path)
 else:
     print("用户取消了选择文件")
 
