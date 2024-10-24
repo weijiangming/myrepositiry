@@ -1,4 +1,4 @@
-#工标库json条文编号有漏的拎出来并记录到文件夹
+#工标库正文json条文编号有漏的拎出来并记录到excel
 import re
 import os
 import sys

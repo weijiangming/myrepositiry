@@ -5,6 +5,7 @@
       工标库删除条文说明的json文件；条纹编号和切片内容都的重复切片（注：适用正文）                               gbk_delrepeattwbh_zhengwen.py
 1.1.2 工标库json修改重复切片合并等；执行该文件之前先去条纹编号和切片都相同的情况。                  gbk_modify_bygroupclever.py
 1.1.3 条文说明JSON文件中 条文编号相同的情况拎出来到《*_切片内容重复的json文件》的文件夹            gbk_pickandmovesametwbh.py
+1.1.4 #工标库正文json条文编号有漏的拎出来并记录到excel                                          gbk_picklack.py
 
 1.2 工标库检查json有某种情况拎出来另一个文件夹            gbk_pickandmove.py 
 1.3 工标库json修改重复切片                              gbk_modify_repeat.py
