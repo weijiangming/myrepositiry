@@ -16,3 +16,5 @@ pyproject/filesmanage/filesfunction/__pycache__/opfiles.cpython-312.pyc
 ragproject/.env
 ragproject/vector_db/chroma/
 
+pyproject/dist/recordnames.exe
+pyproject/recordnames.spec

@@ -31,7 +31,7 @@ def write_filenames_to_excelT(folder_path, excel_file_path):
     workbook.save(excel_file_path)
 
 
-def write_filenames_to_excel(folder_path, excel_file_path, include_subfolders=False):
+def write_filenames_to_excel(folder_path, include_subfolders=True):
     """
     将指定文件夹及其子文件夹中的文件名写入到Excel文件中
 
@@ -54,10 +54,13 @@ def write_filenames_to_excel(folder_path, excel_file_path, include_subfolders=Fa
             if os.path.isfile(os.path.join(folder_path, file)):
                 sheet.append([file])
 
-    workbook.save(excel_file_path)
+    excel_file_name = folder_path.split("/")[-1] + "_提取文件名.xlsx"
+    excelfolder_path = os.path.normpath(os.path.join(parent_folder, excel_file_name))
+    workbook.save(excelfolder_path)
+
+
 
 # 示例用法
 folder_path, parent_folder = opfiles.OpFiles.select_folder()#你的文件夹路径
-excel_file_path = opfiles.OpFiles.select_excel_file()#Excel文件名
 
-write_filenames_to_excel(folder_path, excel_file_path)
+write_filenames_to_excel(folder_path,)
