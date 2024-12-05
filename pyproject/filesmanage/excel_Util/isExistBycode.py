@@ -59,7 +59,7 @@ if file_path:
         ck_code_list.append(row[9])
 
     # 遍历A列中的每个单元格
-    for row in sheet.iter_rows(min_col=10, max_col=10, values_only=False):
+    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row,min_col=9, max_col=9, values_only=False):
         # 获取A列单元格的值
         cell = row[0]
         a_value = cell.value
